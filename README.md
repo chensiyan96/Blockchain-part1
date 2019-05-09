@@ -6,7 +6,7 @@
 
 ## 开发环境配置
 
-已经配置了spring,mybatis,log4j,druid,jackson
+已经配置了spring,mybatis,log4j,druid,jackson (需要自学一下spring rest api 和 mybatis的使用)
 
 jdk版本:Java 11.0.1
 
