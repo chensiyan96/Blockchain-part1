@@ -2,3 +2,5 @@
 *.log
 *.iml
 *target*
+.project
+.setting
