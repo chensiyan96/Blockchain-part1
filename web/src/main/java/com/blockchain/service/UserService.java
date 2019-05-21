@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService
 {
+
 	@Autowired
 	private final UserMapper userMapper;
 
@@ -36,6 +37,16 @@ public class UserService
 		return user;
 	}
 
+	public User getUserInfoByEmail(String email) throws RuntimeException
+	{
+		User user = userMapper.getUserInfoByEmail(email);
+		if (user == null)
+		{
+			throw new RuntimeException("用户信息不存在");
+		}
+		return user;
+	}
+
 	/**
 	 * 用户注册
 	 */
@@ -47,8 +58,38 @@ public class UserService
 			return user.id;
 		} catch (Exception e)
 		{
+			System.out.println("--------------");
 			e.printStackTrace();
+			System.out.println("--------------");
 		}
 		return 0;
 	}
+
+	/**
+	 * 判断邮箱是否已经注册
+	 */
+	public boolean isEmailExist(String email)
+	{
+		return userMapper.isEmailExist(email) > 0;
+	}
+
+	/**
+	 * 登录验证
+	 */
+	public int signIn(String email, String psw)
+	{
+		try
+		{
+			return userMapper.verifyUser(email, psw);
+		} catch (Exception e)
+		{
+			System.out.println("--------------");
+			e.printStackTrace();
+
+			System.out.println("--------------");
+			return 0;
+		}
+	}
+
+
 }
