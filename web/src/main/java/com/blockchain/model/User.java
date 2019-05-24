@@ -8,18 +8,20 @@ public class User
 
 	public int id;
 
-	public String password;
-	public String name;
+	public String passwordHash;
+	public String companyName;
 	public String email;
-	public String phone;
-	public String avatar;
+	public String normalizedEmail;
+	public String profile;
+	public Roles role;
 
 	public JSON toJSON()
 	{
 		JSON user = new JSON();
-		user.put("email", email);
-		user.put("name", name);
-		user.put("phone", phone);
+		user.put("email", normalizedEmail);
+		user.put("name", companyName);
+		//user.put("profile", profile);
+		user.put("role", role);
 		return user;
 	}
 }

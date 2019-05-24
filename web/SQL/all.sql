@@ -1,12 +1,89 @@
-CREATE SCHEMA `blockchain` DEFAULT CHARACTER SET utf8 ;
+-- CREATE SCHEMA `blockchain` DEFAULT CHARACTER SET utf8 ;
 
-CREATE TABLE `blockchain`.`user` (
-  `id` VARCHAR(255) NOT NULL,
-  `password` VARCHAR(255) NOT NULL,
-  `name` VARCHAR(255) NOT NULL,
-  `email` VARCHAR(64) NOT NULL,
-  `phone` VARCHAR(45) NULL,
-  `avatar` VARCHAR(255) NULL,
-  PRIMARY KEY (`id`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
+-- 基本用户信息
+CREATE TABLE `Users` (
+	  `Id` INT NOT NULL auto_increment,
+    `Email` varchar(256) NOT NULL,
+    `NormalizedEmail` varchar(256)NOT NULL,
+    `PasswordHash` longtext NOT NULL,
+    `CompanyName` longtext NULL,
+    `Profile`longtext NULL,
+    `Role` varchar(256) NULL,
+	PRIMARY KEY (`Id`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+-- --- 所有角色
+--  CREATE TABLE `Roles` (
+-- 	`Id` INT NOT NULL auto_increment,
+--     `Name` varchar(256) NOT NULL,
+--     `NormalizedUserName` varchar(256)NOT NULL,
+-- 	PRIMARY KEY (`Id`)
+--  ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+--
+-- --- 用户角色
+--  CREATE TABLE `UserRoles` (
+--     `UserId` INT NOT NULL,
+--     `RoleId` INT NOT NULL,
+--     CONSTRAINT `PK_UserRoles` PRIMARY KEY (`UserId`, `RoleId`),
+--     CONSTRAINT `FK_UserRoles_Roles_RoleId` FOREIGN KEY (`RoleId`) REFERENCES `Roles` (`Id`) ON DELETE CASCADE,
+--     CONSTRAINT `FK_UserRoles_Users_UserId` FOREIGN KEY (`UserId`) REFERENCES `Users` (`Id`) ON DELETE CASCADE
+-- )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 用户账户余额
+CREATE TABLE `UserAccounts` (
+    `UserId` INT NOT NULL,
+    `Money` decimal(20,2) NOT NULL,
+    CONSTRAINT `PK_UserAccounts` PRIMARY KEY (`UserId`),
+    CONSTRAINT `FK_UserAccounts_Users_UserId` FOREIGN KEY (`UserId`) REFERENCES `Users` (`Id`) ON DELETE CASCADE
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 供应商评级
+CREATE TABLE `Suppliers` (
+    `UserId` INT NOT NULL,
+    `Rating` INT NULL,
+    `LimitedMoney` decimal(20,2) NULL,
+    `Rule` longtext NULL,
+    CONSTRAINT `PK_Suppliers` PRIMARY KEY (`UserId`),
+    CONSTRAINT `FK_Suppliers_Users_UserId` FOREIGN KEY (`UserId`) REFERENCES `Users` (`Id`) ON DELETE CASCADE
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 贷款、借条
+CREATE TABLE `Credits` (
+    `Id` INT NOT NULL,
+    `Money` decimal(20,2) NOT NULL,
+    `CreateTime` DATETIME NULL,
+    `Deadline` DATETIME NULL,
+    `PartyA` INT NULL,
+    `PartyB` INT NULL,
+    `Status` INT NULL,
+    PRIMARY KEY (`Id`),
+    CONSTRAINT `FK_Credits_Users_PartyA` FOREIGN KEY (`PartyA`) REFERENCES `Users` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `FK_Credits_Users_PartyB` FOREIGN KEY (`PartyB`) REFERENCES `Users` (`Id`) ON DELETE CASCADE
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 转账记录
+CREATE TABLE `Payments` (
+    `Id` INT NOT NULL,
+    `CreateTime` DATETIME NULL,
+    `Money` decimal(20,2) NOT NULL,
+    `PartyA` INT NULL,
+    `PartyB` INT NULL,
+    PRIMARY KEY (`Id`),
+    CONSTRAINT `FK_Payments_Users_PartyA` FOREIGN KEY (`PartyA`) REFERENCES `Users` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `FK_Payments_Users_PartyB` FOREIGN KEY (`PartyB`) REFERENCES `Users` (`Id`) ON DELETE CASCADE
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 合同
+CREATE TABLE `Agreements` (
+    `Id` INT NOT NULL,
+    `Terms` longtext NULL,
+    `CreateTime` DATETIME NULL,
+    `PartyA` INT NULL,
+    `PartyB` INT NULL,
+    `Status` INT NULL,
+    `CreditId` int NULL,
+    PRIMARY KEY (`Id`),
+    CONSTRAINT `FK_Agreements_Users_PartyA` FOREIGN KEY (`PartyA`) REFERENCES `Users` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `FK_Agreements_Users_PartyB` FOREIGN KEY (`PartyB`) REFERENCES `Users` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `FK_Agreements_Credits_CreditId` FOREIGN KEY (`CreditId`) REFERENCES `Credits` (`Id`) ON DELETE CASCADE
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;

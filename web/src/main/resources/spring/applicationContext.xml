@@ -43,7 +43,7 @@
 
     <!-- 这里配置提交方式，默认就是TRUE，可以不用配置 -->
 
-    <property name="defaultAutoCommit" value="true" />
+    <property name="defaultAutoCommit" value="false" />
 
   </bean>
 

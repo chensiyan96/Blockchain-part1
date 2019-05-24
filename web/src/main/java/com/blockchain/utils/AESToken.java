@@ -22,17 +22,13 @@ public class AESToken
 	private static final String KEY = "wdnmdrg";
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-	private IvParameterSpec ivParameterSpec;
-	private SecretKeySpec secretKeySpec;
-	private Cipher cipher;
+	private static IvParameterSpec ivParameterSpec;
+	private static SecretKeySpec secretKeySpec;
+	private static Cipher cipher;
 
 	static
 	{
 		Security.addProvider(new BouncyCastleProvider());
-	}
-
-	public AESToken()
-	{
 		ivParameterSpec = new IvParameterSpec(SECRET_KEY_2.getBytes());
 		secretKeySpec = new SecretKeySpec(SECRET_KEY_1.getBytes(), "AES");
 		try
@@ -44,8 +40,12 @@ public class AESToken
 		}
 	}
 
+	public AESToken()
+	{
+	}
 
-	public String encrypt(String toBeEncrypt)
+
+	public static String encrypt(String toBeEncrypt)
 			throws InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException
 	{
 		cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
@@ -54,7 +54,7 @@ public class AESToken
 	}
 
 
-	public String decrypt(String encrypted)
+	public static String decrypt(String encrypted)
 			throws InvalidAlgorithmParameterException, InvalidKeyException,
 			BadPaddingException, IllegalBlockSizeException
 	{
@@ -63,7 +63,7 @@ public class AESToken
 		return new String(decryptedBytes);
 	}
 
-	public String getToken(JSON userinfo) throws Exception
+	public static String getToken(JSON userinfo) throws Exception
 	{
 		try
 		{
@@ -84,7 +84,7 @@ public class AESToken
 		}
 	}
 
-	public JSON verifyToken(String token)
+	public static JSON verifyToken(String token)
 	{
 		var res = new JSON();
 		try

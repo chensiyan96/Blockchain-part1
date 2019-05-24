@@ -1,27 +1,36 @@
 package com.blockchain.service;
 
+import com.blockchain.dao.AccountMapper;
 import com.blockchain.model.User;
 import com.blockchain.dao.UserMapper;
+import com.blockchain.utils.AESToken;
+import com.blockchain.utils.MStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+//todo : 用到了事务，所以异常是必须抛出的
 @Service
+@Transactional
 public class UserService
 {
 
 	@Autowired
 	private final UserMapper userMapper;
 
-	//不设置默认构造函数会报错。使用Spring报错：No default constructor found
-	//??? smjb错误
+	@Autowired
+	private final AccountMapper accountMapper;
+
 	public UserService()
 	{
 		userMapper = null;
+		accountMapper = null;
 	}
 
-	public UserService(UserMapper userMapper)
+	public UserService(UserMapper userMapper, AccountMapper accountMapper)
 	{
 		this.userMapper = userMapper;
+		this.accountMapper = accountMapper;
 	}
 
 	/**
@@ -39,7 +48,7 @@ public class UserService
 
 	public User getUserInfoByEmail(String email) throws RuntimeException
 	{
-		User user = userMapper.getUserInfoByEmail(email);
+		User user = userMapper.getUserInfoByEmail(MStringUtils.normalize(email));
 		if (user == null)
 		{
 			throw new RuntimeException("用户信息不存在");
@@ -55,6 +64,7 @@ public class UserService
 		try
 		{
 			userMapper.insertUser(user);
+			accountMapper.insertUserAccount(user.id);
 			return user.id;
 		} catch (Exception e)
 		{
@@ -70,7 +80,8 @@ public class UserService
 	 */
 	public boolean isEmailExist(String email)
 	{
-		return userMapper.isEmailExist(email) > 0;
+
+		return userMapper.isEmailExist(MStringUtils.normalize(email)) > 0;
 	}
 
 	/**
@@ -80,7 +91,7 @@ public class UserService
 	{
 		try
 		{
-			return userMapper.verifyUser(email, psw);
+			return userMapper.verifyUser(MStringUtils.normalize(email), AESToken.encrypt(psw));
 		} catch (Exception e)
 		{
 			System.out.println("--------------");
@@ -91,5 +102,31 @@ public class UserService
 		}
 	}
 
+	/**
+	 * 更新信息
+	 */
+	public void updateUserinfo(String name, String profile, int uid)
+	{
+		try
+		{
+			userMapper.updateUserInfo(name, profile, uid);
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 
+	/**
+	 * 更新密码
+	 */
+	public void updatePassword(String psw, int uid)
+	{
+		try
+		{
+			userMapper.updatePassword(uid, AESToken.encrypt(psw));
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 }

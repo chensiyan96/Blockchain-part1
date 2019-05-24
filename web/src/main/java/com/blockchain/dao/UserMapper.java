@@ -7,27 +7,31 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Mapper
 public interface UserMapper {
-	@Select(" SELECT * FROM user WHERE id = #{uid} ")
+	@Select(" SELECT * FROM users WHERE Id = #{uid} ")
 	User getUserInfo(@Param("uid") int uid);
 
-	@Select(" SELECT * FROM user WHERE id = #{email} ")
+	@Select(" SELECT * FROM users WHERE NormalizedEmail = #{email} ")
 	User getUserInfoByEmail(@Param("email") String email);
 
-	@Update(" UPDATE user " +
-			" SET name = #{name}, avatar = #{avatar}, phone = #{phone}" +
-			" WHERE id = #{id} ")
-	void updateUserInfo(User user);
+	@Update(" UPDATE Users " +
+			" SET CompanyName = #{name}, Profile = #{profile}" +
+			" WHERE Id = #{uid} ")
+	void updateUserInfo(@Param("name") String name,@Param("profile") String profile,@Param("uid") int uid);
 
-	@Update(" UPDATE user SET password = #{password} WHERE id = #{userID} ")
-	void updatePassword(@Param("userID") int userID, @Param("password") String password);
+	@Update(" UPDATE Users "
+			+ "SET PasswordHash = #{password} "
+			+ "WHERE Id = #{uid} ")
+	void updatePassword(@Param("userID") int uid, @Param("password") String password);
 
-	@Options(useGeneratedKeys = true, keyProperty = "id")
-	@Insert("INSERT INTO user (name,email,password,phone,avatar) VALUES (#{name},#{email},#{password},#{phone},#{avatar})")
+	@Options(useGeneratedKeys = true, keyProperty = "Id")
+	@Insert("INSERT INTO Users "
+			+ "(PasswordHash,Email,NormalizedEmail,CompanyName,Profile,Role) "
+			+ "VALUES (#{passwordHash},#{email},#{normalizedEmail},#{companyName},#{profile}),#{role}")
 	void insertUser(User user);
 
-	@Select(" SELECT count(*) from user where email = #{email}")
+	@Select(" SELECT count(*) from Users where NormalizedEmail = #{email}")
 	int isEmailExist(@Param("email") String email);
 
-	@Select(" SELECT id from user where email = #{email} and password = #{psw}")
+	@Select(" SELECT id from Users where NormalizedEmail = #{email} and PasswordHash = #{psw}")
 	int verifyUser(@Param("email") String email,@Param("psw") String psw);
 }
