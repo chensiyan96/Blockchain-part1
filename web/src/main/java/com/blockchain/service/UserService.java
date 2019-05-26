@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-//todo : 用到了事务，所以异常是必须抛出的
+
 @Service
 @Transactional
 public class UserService

@@ -26,7 +26,7 @@ public interface UserMapper {
 	@Options(useGeneratedKeys = true, keyProperty = "Id")
 	@Insert("INSERT INTO Users "
 			+ "(PasswordHash,Email,NormalizedEmail,CompanyName,Profile,Role) "
-			+ "VALUES (#{passwordHash},#{email},#{normalizedEmail},#{companyName},#{profile}),#{role}")
+			+ "VALUES (#{passwordHash},#{email},#{normalizedEmail},#{companyName},#{profile},#{role})")
 	void insertUser(User user);
 
 	@Select(" SELECT count(*) from Users where NormalizedEmail = #{email}")
