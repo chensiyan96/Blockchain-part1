@@ -80,7 +80,7 @@ CREATE TABLE `Agreements` (
     `CreateTime` DATETIME NULL,
     `PartyA` INT NULL,
     `PartyB` INT NULL,
-    `Status` INT NULL,
+    `Status` varchar(256) NULL,
     `CreditId` int NULL,
     PRIMARY KEY (`Id`),
     CONSTRAINT `FK_Agreements_Users_PartyA` FOREIGN KEY (`PartyA`) REFERENCES `Users` (`Id`) ON DELETE CASCADE,

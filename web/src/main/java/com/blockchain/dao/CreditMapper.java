@@ -16,9 +16,9 @@ public interface CreditMapper
 	@Select("select * from Credits where Id = #{id}")
 	Credit getCredit(@Param("id")int id);
 
-	@Update("update Credits set Status = #{s} where UserId = #{id}")
+	@Update("update Credits set Status = #{s} where Id = #{id}")
 	void updateStatus(@Param("s")int status,@Param("id")int id);
 
-	@Update("update Credits set PartyB = #{PartyB} where UserId = #{id}")
+	@Update("update Credits set PartyB = #{PartyB} where Id = #{id}")
 	void updatePartyB(@Param("PartyB")int PartyB,@Param("id")int id);
 }

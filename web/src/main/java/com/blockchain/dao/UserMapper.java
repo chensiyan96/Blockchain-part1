@@ -6,7 +6,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @Mapper
-public interface UserMapper {
+public interface UserMapper
+{
 	@Select(" SELECT * FROM users WHERE Id = #{uid} ")
 	User getUserInfo(@Param("uid") int uid);
 

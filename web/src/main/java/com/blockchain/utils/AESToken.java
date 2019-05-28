@@ -3,8 +3,6 @@ package com.blockchain.utils;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Security;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -20,7 +18,7 @@ public class AESToken
 	private static final String SECRET_KEY_1 = "751f621ea5c8f930";
 	private static final String SECRET_KEY_2 = "2624750004598718";
 	private static final String KEY = "wdnmdrg";
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 
 	private static IvParameterSpec ivParameterSpec;
 	private static SecretKeySpec secretKeySpec;
@@ -72,10 +70,7 @@ public class AESToken
 			bearer.put("User", userinfo);
 			Date now = new Date();
 
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(now);
-			calendar.add(Calendar.DAY_OF_MONTH, 7);
-			bearer.put("Lifetime", sdf.format(calendar.getTime()));
+			bearer.put("Lifetime", MDateCmp.timeFormat(MDateCmp.timeAdd(7, now)));
 
 			return encrypt(bearer.toString());
 		} catch (Exception e)
@@ -91,12 +86,11 @@ public class AESToken
 		{
 			var bearer = new JSON(decrypt(token));
 			var user = bearer.getJSONObject("User");
-			var time = sdf.parse(bearer.getString("Lifetime"));
+			var time = MDateCmp.parse(bearer.getString("Lifetime"));
 			var now = new Date();
 			if (now.compareTo(time) > 0)
 			{
-				res.put("status", 0);
-				res.put("msg", "token过期");
+				throw new Exception("token过期");
 			} else
 			{
 				res.put("status", 1);
@@ -107,7 +101,7 @@ public class AESToken
 		} catch (Exception e)
 		{
 			res.put("status", 0);
-			res.put("msg", "token错误");
+			res.put("msg", e.getMessage());
 		}
 		return res;
 	}
