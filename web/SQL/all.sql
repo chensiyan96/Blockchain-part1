@@ -87,3 +87,47 @@ CREATE TABLE `Agreements` (
     CONSTRAINT `FK_Agreements_Users_PartyB` FOREIGN KEY (`PartyB`) REFERENCES `Users` (`Id`) ON DELETE CASCADE,
     CONSTRAINT `FK_Agreements_Credits_CreditId` FOREIGN KEY (`CreditId`) REFERENCES `Credits` (`Id`) ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 贷款抵押
+CREATE TABLE `Mortgages`(
+    `Id` INT NOT NULL,
+    `Cid` INT NOT NULL,
+    `Money` decimal(20,2) NOT NULL,
+    `CreateTime` DATETIME NULL,
+    `PartyA` INT NULL,
+    `PartyB` INT NULL,
+    `Status` INT NULL,
+    PRIMARY KEY (`Id`),
+    CONSTRAINT `FK_Mortgages_Credits_Cid` FOREIGN KEY (`Cid`) REFERENCES `Credits` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `FK_Mortgages_Users_PartyA` FOREIGN KEY (`PartyA`) REFERENCES `Users` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `FK_Mortgages_Users_PartyB` FOREIGN KEY (`PartyB`) REFERENCES `Users` (`Id`) ON DELETE CASCADE
+
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 融资 其实和合同没什么区别？
+CREATE TABLE `Financing`(
+    `Id` INT NOT NULL,
+    `Terms` longtext NULL,
+    `CreateTime` DATETIME NULL,
+    `PartyA` INT NULL,
+    `PartyB` INT NULL,
+    `Status` varchar(256) NULL,
+    `Mid` INT NOT NULL,
+    `Aid` INT NOT NULL,
+    PRIMARY KEY (`Id`),
+    CONSTRAINT `FK_Financing_Users_PartyA` FOREIGN KEY (`PartyA`) REFERENCES `Users` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `FK_Financing_Users_PartyB` FOREIGN KEY (`PartyB`) REFERENCES `Users` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `FK_Financing_Mortgages_CreditId` FOREIGN KEY (`MId`) REFERENCES `Mortgages` (`Id`) ON DELETE CASCADE
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `Message`(
+    `Id` INT NOT NULL,
+    `Msg` longtext NULL,
+    `CreateTime` DATETIME NULL,
+    `PartyA` INT NULL,
+    `PartyB` INT NULL,
+    `Status` INT NULL,
+    PRIMARY KEY (`Id`),
+    CONSTRAINT `FK_Message_Users_PartyA` FOREIGN KEY (`PartyA`) REFERENCES `Users` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `FK_Message_Users_PartyB` FOREIGN KEY (`PartyB`) REFERENCES `Users` (`Id`) ON DELETE CASCADE,
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;

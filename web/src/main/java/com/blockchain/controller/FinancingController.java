@@ -1,18 +1,14 @@
 package com.blockchain.controller;
 
-import com.blockchain.controller.Jobs.RepaidNoticeJob;
-import com.blockchain.model.AgreeStatus;
+import com.blockchain.model.FinancingStatus;
 import com.blockchain.service.AgreementService;
-import com.blockchain.service.CreditService;
+import com.blockchain.service.FinancingService;
+import com.blockchain.service.MortgageService;
 import com.blockchain.service.PaymentService;
-import com.blockchain.service.QuartzService;
 import com.blockchain.service.UserService;
 import com.blockchain.utils.AESToken;
 import com.blockchain.utils.JSON;
-import com.blockchain.utils.MDateCmp;
 import com.blockchain.utils.MStatusUtils;
-import java.util.Date;
-import org.apache.ibatis.jdbc.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,39 +16,40 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "api/agreement")
-public class AgreementController
+@RequestMapping(value = "api/Financing")
+public class FinancingController
 {
 
 	@Autowired
-	private final AgreementService agreementService;
-	@Autowired
 	private final PaymentService paymentService;
-	@Autowired
-	private final CreditService creditService;
 	@Autowired
 	private final UserService userService;
 	@Autowired
-	private final QuartzService quartzService;
+	private final FinancingService financingService;
+	@Autowired
+	private final MortgageService mortgageService;
+	@Autowired
+	private final AgreementService agreementService;
 
-	public AgreementController()
+	public FinancingController()
 	{
-		agreementService = null;
-		paymentService = null;
-		creditService = null;
+		mortgageService = null;
+		financingService = null;
 		userService = null;
-		quartzService = null;
+		paymentService = null;
+		agreementService = null;
 	}
 
-	public AgreementController(AgreementService agreementService,
-			PaymentService paymentService, CreditService creditService,
-			UserService userService, QuartzService quartzService)
+	public FinancingController(PaymentService paymentService,
+			UserService userService, FinancingService financingService,
+			MortgageService mortgageService,
+			AgreementService agreementService)
 	{
-		this.agreementService = agreementService;
 		this.paymentService = paymentService;
-		this.creditService = creditService;
 		this.userService = userService;
-		this.quartzService = quartzService;
+		this.financingService = financingService;
+		this.mortgageService = mortgageService;
+		this.agreementService = agreementService;
 	}
 
 	@RequestMapping(value = "create", method = {RequestMethod.POST})
@@ -68,23 +65,14 @@ public class AgreementController
 			{
 				throw new Exception("登录信息错误");
 			}
-			var a = req.getJSONObject("agreement");
-			var c = req.getJSONObject("credit");
-			Date d = new Date();
-			var ddl = MDateCmp.timeAdd(c.getInt("deadline"), d);
-			int cid = creditService.create(c.getInt("partyA"), c.getInt("partyB"), d,
-					ddl, c.getBigDecimal("money"));
-			int aid = agreementService.create(a.getInt("partyA"), a.getInt("partyB"), d,
-					cid, a.getString("terms"));
-			JSON t = new JSON();
-			t.put("partyA", c.getInt("partyA"));
-			t.put("partyB", c.getInt("partyB"));
-			t.put("msg", "nmd 该还钱了");
-			quartzService.addJob("credit" + cid, "credit", "nmsl", "nmsl", RepaidNoticeJob.class,
-					MDateCmp.cronFormate(ddl), t);
+			var f = new JSON(req.getJSONObject("financing").toString());
+			var m = new JSON(req.getJSONObject("mortgage").toString());
+			int mid = mortgageService.create(m);
+			f.put("mid", mid);
+			int fid = financingService.create(f);
 			response.put("status", 1);
 			response.put("msg", "Success");
-			response.put("agreement", aid);
+			response.put("agreement", fid);
 
 		} catch (Exception e)
 		{
@@ -107,34 +95,38 @@ public class AgreementController
 			{
 				throw new Exception("登录信息错误");
 			}
-			var aid = req.getInt("aid");
+			var fid = req.getInt("fid");
 			var user = res.getJSONObject("user");
 			var u = userService.getUserInfoByEmail(user.getString("email"));
-			var status = AgreeStatus.values()[req.getInt("status")];
-			var ag = agreementService.getAgreement(aid);
+			var status = FinancingStatus.values()[req.getInt("status")];
+			var f = financingService.getFinancing(fid);
 
-			if (!status.equals(ag.status))
+			if (!status.equals(f.status))
 			{
 				throw new Exception("参数错误");
 			}
 
-			if ((MStatusUtils.agreeStatusDivision(status) == 1 && u.id == ag.partyA) ||
-					(MStatusUtils.agreeStatusDivision(status) == 2 && u.id == ag.partyB))
+			if (status.equals(FinancingStatus.init) && u.id == f.partyA)
 			{
-
-				agreementService.updateStatus(MStatusUtils.getNextAgreeStatus(status), aid);
-				if (status.equals(AgreeStatus.repaid))
+				financingService.updateStatus(MStatusUtils.getNextFinancingStatus(status), fid);
+			} else if (status.equals(FinancingStatus.confirminfo))
+			{
+				var tmp = agreementService.getAgreement(f.aid);
+				if (u.id == tmp.partyA)
 				{
-					creditService.updateStatus(2, ag.creditId);
+					financingService.updateStatus(MStatusUtils.getNextFinancingStatus(status), fid);
 				}
+
+			} else if (status.equals(FinancingStatus.paid) && u.id == f.partyB)
+			{
+				financingService.updateStatus(MStatusUtils.getNextFinancingStatus(status), fid);
 			} else
 			{
 				throw new Exception("参数错误");
 			}
-
 			response.put("status", 1);
 			response.put("msg", "Success");
-			response.put("agreement", aid);
+			response.put("agreement", fid);
 
 		} catch (Exception e)
 		{
@@ -144,8 +136,8 @@ public class AgreementController
 		return response.toString();
 	}
 
-	@RequestMapping(value = "repay", method = {RequestMethod.POST})
-	public String repay(@RequestBody String request)
+	@RequestMapping(value = "pay", method = {RequestMethod.POST})
+	public String pay(@RequestBody String request)
 	{
 		JSON req = new JSON(request);
 		JSON response = new JSON();
@@ -157,20 +149,21 @@ public class AgreementController
 			{
 				throw new Exception("登录信息错误");
 			}
-			var aid = req.getInt("aid");
+			var fid = req.getInt("fid");
 			var user = res.getJSONObject("user");
+			var money = req.getBigDecimal("money");
 			var u = userService.getUserInfoByEmail(user.getString("email"));
-			var status = AgreeStatus.values()[req.getInt("status")];
-			var ag = agreementService.getAgreement(aid);
-			var cd = creditService.getCredit(ag.creditId);
+			var status = FinancingStatus.values()[req.getInt("status")];
+			var f = financingService.getFinancing(fid);
 
-			if (status != AgreeStatus.comfirmship || u.id != cd.partyA)
+			if (status != FinancingStatus.cbConfirm || u.id != f.partyA)
 			{
 				throw new Exception("参数错误");
 			}
 
-			paymentService.transfer(cd.partyA, cd.partyB, cd.money);
-			creditService.updateStatus(1, cd.id);
+			paymentService.transfer(f.partyA, f.partyB, money);
+			financingService.updateStatus(MStatusUtils.getNextFinancingStatus(status), fid);
+
 			response.put("status", 1);
 			response.put("msg", "Success");
 		} catch (Exception e)
@@ -181,8 +174,8 @@ public class AgreementController
 		return response.toString();
 	}
 
-	@RequestMapping(value = "getAgreement", method = {RequestMethod.POST})
-	public String getAgreement(@RequestBody String request)
+	@RequestMapping(value = "getFinancing", method = {RequestMethod.POST})
+	public String getFinancing(@RequestBody String request)
 	{
 		JSON req = new JSON(request);
 		JSON response = new JSON();
@@ -194,14 +187,14 @@ public class AgreementController
 			{
 				throw new Exception("登录信息错误");
 			}
-			var aid = req.getInt("aid");
-			var ag = agreementService.getAgreement(aid);
-			var cd = creditService.getCredit(ag.creditId);
+			var fid = req.getInt("fid");
+			var f = financingService.getFinancing(fid);
+			var m = mortgageService.getMortgage(f.mid);
 
 			response.put("status", 1);
 			response.put("msg", "Success");
-			response.put("agreement", ag);
-			response.put("credit", cd);
+			response.put("financing", f);
+			response.put("mortgage", m);
 		} catch (Exception e)
 		{
 			response.put("status", 0);
@@ -209,5 +202,4 @@ public class AgreementController
 		}
 		return response.toString();
 	}
-
 }

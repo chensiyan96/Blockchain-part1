@@ -7,7 +7,9 @@ import java.util.Date;
 
 public class MDateCmp
 {
+
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private static final SimpleDateFormat sdf2 = new SimpleDateFormat("ss mm HH dd MM ? yyyy");
 
 	public static Date timeAdd(int days, Date from)
 	{
@@ -27,5 +29,9 @@ public class MDateCmp
 		return sdf.parse(s);
 	}
 
+	public static String cronFormate(Date d)
+	{
+		return sdf2.format(d);
+	}
 
 }

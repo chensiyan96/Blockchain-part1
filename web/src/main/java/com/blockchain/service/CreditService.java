@@ -1,8 +1,6 @@
 package com.blockchain.service;
 
-import com.blockchain.dao.AccountMapper;
 import com.blockchain.dao.CreditMapper;
-import com.blockchain.dao.PaymentMapper;
 import com.blockchain.model.Credit;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -28,14 +26,14 @@ public class CreditService
 		this.creditMapper = creditMapper;
 	}
 
-	public int create(int partyA, int partyB, Date creaetTime, Date deadline, BigDecimal money)
+	public int create(int partyA, int partyB, Date createTime, Date deadline, BigDecimal money)
 			throws Exception
 	{
 
 		Credit c = new Credit();
 		c.partyA = partyA;
 		c.partyB = partyB;
-		c.createTime = creaetTime;
+		c.createTime = createTime;
 		c.deadline = deadline;
 		c.money = money;
 
@@ -61,11 +59,4 @@ public class CreditService
 	{
 		creditMapper.updateStatus(status, id);
 	}
-
-	public void updatePartyB(int uid, int id)
-	{
-		creditMapper.updatePartyB(uid, id);
-	}
-
-
 }

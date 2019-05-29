@@ -47,6 +47,11 @@
 
   </bean>
 
+  <bean name="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" >
+    <property name="dataSource" ref ="dataSource" />
+    <property name="applicationContextSchedulerContextKey" value="applicationContextKey"/>
+    <property name="configLocation" value="classpath:quartz.properties"/>
+  </bean>
 
   <!-- 配置Mybatis工厂 -->
   <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">

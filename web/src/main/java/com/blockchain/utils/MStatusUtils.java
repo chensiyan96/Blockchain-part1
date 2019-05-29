@@ -1,6 +1,7 @@
 package com.blockchain.utils;
 
 import com.blockchain.model.AgreeStatus;
+import com.blockchain.model.FinancingStatus;
 
 public class MStatusUtils
 {
@@ -27,5 +28,8 @@ public class MStatusUtils
 		return AgreeStatus.values()[status.ordinal() + 1];
 	}
 
-
+	public static FinancingStatus getNextFinancingStatus(FinancingStatus status)
+	{
+		return FinancingStatus.values()[status.ordinal() + 1];
+	}
 }

@@ -3,18 +3,13 @@ package com.blockchain.model;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class Credit
+public class Mortgages
 {
 	public int id;
+	public int cid;
 	public BigDecimal money;
 	public Date createTime;
-	public Date deadline;
-
-	//A掏钱给B
 	public int partyA;
 	public int partyB;
-
-	//打借条的时候时0，还了是1，确认以及还了是2,超期未还是3
 	public int status;
-
 }
