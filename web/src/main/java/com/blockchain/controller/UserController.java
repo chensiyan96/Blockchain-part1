@@ -21,10 +21,10 @@ public class UserController
 	private final UserService userService;
 
 	//todo：这地方不太对，想办法解决一下
-	public UserController()
+/*	public UserController()
 	{
 		userService = null;
-	}
+	}*/
 
 	public UserController(UserService _service)
 	{
