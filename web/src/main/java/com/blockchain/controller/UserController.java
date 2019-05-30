@@ -2,6 +2,7 @@ package com.blockchain.controller;
 
 import com.blockchain.model.Roles;
 import com.blockchain.model.User;
+import com.blockchain.service.AccountService;
 import com.blockchain.service.UserService;
 import com.blockchain.utils.AESToken;
 import com.blockchain.utils.JSON;
@@ -19,16 +20,20 @@ public class UserController
 
 	@Autowired
 	private final UserService userService;
+	@Autowired
+	private final AccountService accountService;
 
-	//todo：这地方不太对，想办法解决一下
 	public UserController()
 	{
 		userService = null;
+		accountService = null;
 	}
 
-	public UserController(UserService _service)
+	public UserController(UserService _service,
+			AccountService accountService)
 	{
 		userService = _service;
+		this.accountService = accountService;
 	}
 
 	@RequestMapping(value = "register", method = {RequestMethod.POST})
@@ -47,24 +52,21 @@ public class UserController
 			user.profile = req.getString("profile");
 			if (userService.isEmailExist(user.email))
 			{
-				response.put("status", 0);
-				response.put("msg", "邮箱已被注册");
-			} else
-			{
-				var id = userService.register(user);
-				response.put("status", 1);
-				response.put("msg", "Success");
+				throw new Exception("邮箱已被注册");
 			}
-
+			var id = userService.register(user);
+			accountService.create(id);
+			response.put("status", 1);
+			response.put("msg", "Success");
 		} catch (Exception e)
 		{
 			response.put("status", 0);
-			response.put("msg", "");
+			response.put("msg", e.getMessage());
 		}
 		return response.toString();
 	}
 
-	@RequestMapping(value = "getUserInfo", method = {RequestMethod.GET})
+		@RequestMapping(value = "getUserInfo", method = {RequestMethod.GET})
 	public String getUserInfo(@RequestBody String request)
 	{
 		var req = new JSON(request);
@@ -97,11 +99,11 @@ public class UserController
 			var id = userService.signIn(req.getString("email"), req.getString("password"));
 			if (id == 0)
 			{
-				throw new RuntimeException("用户名或者密码错误");
+				throw new Exception("用户名或者密码错误");
 			}
 			var user = userService.getUserInfoByID(id);
 			var userInfo = user.toJSON();
-			//todo：更合理的token验证
+
 			var token = AESToken.getToken(userInfo);
 			res.put("status", 1);
 			res.put("msg", "Success");

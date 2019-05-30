@@ -4,7 +4,7 @@
 CREATE TABLE `Users` (
 	  `Id` INT NOT NULL auto_increment,
     `Email` varchar(256) NOT NULL,
-    `NormalizedEmail` varchar(256)NOT NULL,
+    `NormalizedEmail` varchar(256) NOT NULL,
     `PasswordHash` longtext NOT NULL,
     `CompanyName` longtext NULL,
     `Profile`longtext NULL,

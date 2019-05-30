@@ -8,13 +8,14 @@ import org.springframework.stereotype.Repository;
 @Mapper
 public interface AccountMapper
 {
+
 	@Insert("insert into UserAccounts (UserId,Money) "
 			+ "values(#{uid},0)")
-	void insertUserAccount(@Param("uid")int uid);
+	void insertUserAccount(int uid);
 
 	@Select("select Money from UserAccounts where UserId = #{uid}")
-	BigDecimal getUserMoney(@Param("uid")int uid);
+	BigDecimal getUserMoney(int uid);
 
 	@Update("update UserAccounts set Money = Money + #{m} where UserId = #{uid}")
-	void updateUserMoney(@Param("uid")int uid, @Param("m") BigDecimal m);
+	void updateUserMoney(int uid, BigDecimal m);
 }

@@ -9,30 +9,30 @@ import org.springframework.stereotype.Repository;
 public interface UserMapper
 {
 	@Select(" SELECT * FROM users WHERE Id = #{uid} ")
-	User getUserInfo(@Param("uid") int uid);
+	User getUserInfo(int uid);
 
 	@Select(" SELECT * FROM users WHERE NormalizedEmail = #{email} ")
-	User getUserInfoByEmail(@Param("email") String email);
+	User getUserInfoByEmail(String email);
 
 	@Update(" UPDATE Users " +
 			" SET CompanyName = #{name}, Profile = #{profile}" +
 			" WHERE Id = #{uid} ")
-	void updateUserInfo(@Param("name") String name,@Param("profile") String profile,@Param("uid") int uid);
+	void updateUserInfo( String name,  String profile,  int uid);
 
 	@Update(" UPDATE Users "
 			+ "SET PasswordHash = #{password} "
 			+ "WHERE Id = #{uid} ")
-	void updatePassword(@Param("userID") int uid, @Param("password") String password);
+	void updatePassword( int uid,  String password);
 
 	@Options(useGeneratedKeys = true, keyProperty = "Id")
 	@Insert("INSERT INTO Users "
 			+ "(PasswordHash,Email,NormalizedEmail,CompanyName,Profile,Role) "
 			+ "VALUES (#{passwordHash},#{email},#{normalizedEmail},#{companyName},#{profile},#{role})")
-	void insertUser(User user);
+	int insertUser(User user);
 
 	@Select(" SELECT count(*) from Users where NormalizedEmail = #{email}")
-	int isEmailExist(@Param("email") String email);
+	int isEmailExist(  String email);
 
-	@Select(" SELECT id from Users where NormalizedEmail = #{email} and PasswordHash = #{psw}")
+	@Select(" SELECT Id from Users where NormalizedEmail = #{email} and PasswordHash = #{psw}")
 	int verifyUser(@Param("email") String email,@Param("psw") String psw);
 }

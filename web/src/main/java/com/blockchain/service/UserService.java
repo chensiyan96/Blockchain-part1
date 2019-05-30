@@ -1,6 +1,5 @@
 package com.blockchain.service;
 
-import com.blockchain.dao.AccountMapper;
 import com.blockchain.model.User;
 import com.blockchain.dao.UserMapper;
 import com.blockchain.utils.AESToken;
@@ -8,7 +7,6 @@ import com.blockchain.utils.MStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 @Service
 @Transactional
@@ -18,19 +16,14 @@ public class UserService
 	@Autowired
 	private final UserMapper userMapper;
 
-	@Autowired
-	private final AccountMapper accountMapper;
-
 	public UserService()
 	{
 		userMapper = null;
-		accountMapper = null;
 	}
 
-	public UserService(UserMapper userMapper, AccountMapper accountMapper)
+	public UserService(UserMapper userMapper)
 	{
 		this.userMapper = userMapper;
-		this.accountMapper = accountMapper;
 	}
 
 	/**
@@ -59,20 +52,14 @@ public class UserService
 	/**
 	 * 用户注册
 	 */
-	public int register(User user)
+	public int register(User user) throws Exception
 	{
-		try
+		int id = userMapper.insertUser(user);
+		if (id == 0)
 		{
-			userMapper.insertUser(user);
-			accountMapper.insertUserAccount(user.id);
-			return user.id;
-		} catch (Exception e)
-		{
-			System.out.println("--------------");
-			e.printStackTrace();
-			System.out.println("--------------");
+			throw new Exception("用户信息错误");
 		}
-		return 0;
+		return id;
 	}
 
 	/**
@@ -87,46 +74,39 @@ public class UserService
 	/**
 	 * 登录验证
 	 */
-	public int signIn(String email, String psw)
+	public int signIn(String email, String psw) throws Exception
 	{
-		try
-		{
-			return userMapper.verifyUser(MStringUtils.normalize(email), AESToken.encrypt(psw));
-		} catch (Exception e)
-		{
-			System.out.println("--------------");
-			e.printStackTrace();
+		System.out.println(MStringUtils.normalize(email));
+		System.out.println(AESToken.encrypt(psw));
+		return userMapper.verifyUser(MStringUtils.normalize(email), AESToken.encrypt(psw));
 
-			System.out.println("--------------");
-			return 0;
-		}
 	}
 
 	/**
 	 * 更新信息
 	 */
-	public void updateUserinfo(String name, String profile, int uid)
+	public void updateUserinfo(String name, String profile, int uid) throws Exception
 	{
 		try
 		{
 			userMapper.updateUserInfo(name, profile, uid);
 		} catch (Exception e)
 		{
-			e.printStackTrace();
+			throw new Exception("用户信息错误");
 		}
 	}
 
 	/**
 	 * 更新密码
 	 */
-	public void updatePassword(String psw, int uid)
+	public void updatePassword(String psw, int uid) throws Exception
 	{
 		try
 		{
 			userMapper.updatePassword(uid, AESToken.encrypt(psw));
 		} catch (Exception e)
 		{
-			e.printStackTrace();
+			throw new Exception("用户信息错误");
 		}
 	}
 }

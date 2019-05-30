@@ -30,4 +30,13 @@ public class AccountService
 		return accountMapper.getUserMoney(uid);
 	}
 
+	public void create(int uid) throws Exception
+	{
+		if(uid == 0)
+		{
+			throw new Exception("用户id错误");
+		}
+		accountMapper.insertUserAccount(uid);
+	}
+
 }
