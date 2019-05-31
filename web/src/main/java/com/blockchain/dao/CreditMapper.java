@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 @Mapper
 public interface CreditMapper
 {
-	@Options(useGeneratedKeys = true, keyProperty = "Id")
+	@Options(useGeneratedKeys = true)
 	@Insert("insert into Credits (Money,CreateTime,Deadline,PartyA,PartyB,Status) "
 			+ "values(#{money},#{createTime},#{deadline},#{partyA},#{partyB},0)")
 	void insertCredit(Credit c);

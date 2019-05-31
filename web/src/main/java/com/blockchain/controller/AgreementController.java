@@ -70,15 +70,17 @@ public class AgreementController
 			}
 			var a = req.getJSONObject("agreement");
 			var c = req.getJSONObject("credit");
+			int partyA = userService.getUserInfoByEmail(c.getString("partyA")).id;
+			int partyB = userService.getUserInfoByEmail(c.getString("partyB")).id;
 			Date d = new Date();
 			var ddl = MDateCmp.timeAdd(c.getInt("deadline"), d);
-			int cid = creditService.create(c.getInt("partyA"), c.getInt("partyB"), d,
+			int cid = creditService.create(partyA, partyB, d,
 					ddl, c.getBigDecimal("money"));
-			int aid = agreementService.create(a.getInt("partyA"), a.getInt("partyB"), d,
+			int aid = agreementService.create(partyA, partyB, d,
 					cid, a.getString("terms"));
 			JSON t = new JSON();
-			t.put("partyA", c.getInt("partyA"));
-			t.put("partyB", c.getInt("partyB"));
+			t.put("partyA", partyA);
+			t.put("partyB", partyB);
 			t.put("msg", "nmd 该还钱了");
 			quartzService.addJob("credit" + cid, "credit", "nmsl", "nmsl", RepaidNoticeJob.class,
 					MDateCmp.cronFormate(ddl), t);
@@ -196,12 +198,12 @@ public class AgreementController
 			}
 			var aid = req.getInt("aid");
 			var ag = agreementService.getAgreement(aid);
-			var cd = creditService.getCredit(ag.creditId);
-
+			var cd = creditService.getCredit(ag.creditId).toJSON();
+			var t = ag.toJSON();
+			t.put("credit",cd);
 			response.put("status", 1);
 			response.put("msg", "Success");
-			response.put("agreement", ag);
-			response.put("credit", cd);
+			response.put("agreement", t);
 		} catch (Exception e)
 		{
 			response.put("status", 0);

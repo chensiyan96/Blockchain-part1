@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 @Mapper
 public interface PaymentMapper
 {
-	@Options(useGeneratedKeys = true, keyProperty = "Id")
+	@Options(useGeneratedKeys = true)
 	@Insert("insert into Payments (Money,CreateTime,PartyA,PartyB) "
 			+ "values(#{money},#{createTime},#{partyA},#{partyB})")
 	void insertPayment(Payment p);

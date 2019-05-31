@@ -54,7 +54,8 @@ public class UserController
 			{
 				throw new Exception("邮箱已被注册");
 			}
-			var id = userService.register(user);
+			userService.register(user);
+			var id = user.id;
 			accountService.create(id);
 			response.put("status", 1);
 			response.put("msg", "Success");
@@ -66,7 +67,7 @@ public class UserController
 		return response.toString();
 	}
 
-		@RequestMapping(value = "getUserInfo", method = {RequestMethod.GET})
+	@RequestMapping(value = "getUserInfo", method = {RequestMethod.GET})
 	public String getUserInfo(@RequestBody String request)
 	{
 		var req = new JSON(request);
@@ -136,12 +137,8 @@ public class UserController
 
 			userService.updateUserinfo(u.getString("companyName"), u.getString("profile"), id);
 
-			var user = userService.getUserInfoByID(id);
-			var userInfo = user.toJSON();
-			token = AESToken.getToken(userInfo);
-			res.put("status", 1);
-			res.put("msg", "Success");
-			res.put("data", token);
+			response.put("status", 1);
+			response.put("msg", "Success");
 		} catch (Exception e)
 		{
 			response.put("status", 0);
@@ -170,12 +167,12 @@ public class UserController
 
 			userService.updatePassword(psw, id);
 
-			res.put("status", 1);
-			res.put("msg", "Success");
+			response.put("status", 1);
+			response.put("msg", "Success");
 		} catch (Exception e)
 		{
 			response.put("status", 0);
-			response.put("msg", "密码错误");
+			response.put("msg", e.getMessage());
 		}
 		return response.toString();
 	}

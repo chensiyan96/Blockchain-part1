@@ -57,7 +57,7 @@ public class AccountController
 		} catch (Exception e)
 		{
 			response.put("status", 0);
-			response.put("msg", "没有登录;" + e.getMessage());
+			response.put("msg",e.getMessage());
 		}
 		return response.toString();
 	}
@@ -81,7 +81,7 @@ public class AccountController
 		} catch (Exception e)
 		{
 			response.put("status", 0);
-			response.put("msg", "没有登录;" + e.getMessage());
+			response.put("msg", e.getMessage());
 		}
 		return response.toString();
 	}

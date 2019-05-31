@@ -2,19 +2,14 @@ package com.blockchain.dao;
 
 import com.blockchain.model.Mortgages;
 import java.util.List;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Mapper
 public interface MortgagesMapper
 {
-	@Options(useGeneratedKeys = true, keyProperty = "Id")
+	@Options(useGeneratedKeys = true)
 	@Insert("insert into Mortgages (Cid,Money,CreateTime,PartyA,PartyB,Status) "
 			+ "values(#{cid},#{money},#{createTime},#{partyA},#{partyB},0)")
 	void insertMortgage(Mortgages c);

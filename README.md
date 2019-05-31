@@ -17,3 +17,7 @@ tomcat版本:tomcat9.0.19
 ## 部署和测试
 
 看一下另外两个文档，如何使用IDEA运行git上的程序、如何使用postman查看api文档和进行测试
+
+## api 文档
+
+链接 https://documenter.getpostman.com/view/5995846/S1TVWxBj

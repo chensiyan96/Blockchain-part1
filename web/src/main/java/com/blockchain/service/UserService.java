@@ -76,9 +76,13 @@ public class UserService
 	 */
 	public int signIn(String email, String psw) throws Exception
 	{
-		System.out.println(MStringUtils.normalize(email));
-		System.out.println(AESToken.encrypt(psw));
-		return userMapper.verifyUser(MStringUtils.normalize(email), AESToken.encrypt(psw));
+		try
+		{
+			return userMapper.verifyUser(MStringUtils.normalize(email), AESToken.encrypt(psw));
+		} catch (Exception e)
+		{
+			throw new Exception("验证密码错误");
+		}
 
 	}
 
