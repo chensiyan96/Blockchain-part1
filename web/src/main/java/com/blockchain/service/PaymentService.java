@@ -15,21 +15,9 @@ public class PaymentService
 {
 
 	@Autowired
-	private final PaymentMapper paymentMapper;
+	private PaymentMapper paymentMapper;
 	@Autowired
-	private final AccountMapper accountMapper;
-
-	public PaymentService()
-	{
-		paymentMapper = null;
-		accountMapper = null;
-	}
-
-	public PaymentService(PaymentMapper paymentMapper, AccountMapper accountMapper)
-	{
-		this.paymentMapper = paymentMapper;
-		this.accountMapper = accountMapper;
-	}
+	private AccountMapper accountMapper;
 
 	/**
 	 * A 向 B 转账

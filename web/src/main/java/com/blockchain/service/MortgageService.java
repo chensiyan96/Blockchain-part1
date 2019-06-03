@@ -3,6 +3,7 @@ package com.blockchain.service;
 import com.blockchain.dao.MortgagesMapper;
 import com.blockchain.model.Mortgages;
 import com.blockchain.utils.JSON;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,28 +16,18 @@ public class MortgageService
 {
 
 	@Autowired
-	private final MortgagesMapper mortgagesMapper;
+	private MortgagesMapper mortgagesMapper;
 
-	public MortgageService()
-	{
-		mortgagesMapper = null;
-	}
-
-	public MortgageService(MortgagesMapper mortgagesMapper)
-	{
-		this.mortgagesMapper = mortgagesMapper;
-	}
-
-	public int create(JSON j) throws Exception
+	public int create(int cid, BigDecimal money, int partyA, int partyB) throws Exception
 	{
 		Mortgages m = new Mortgages();
 		try
 		{
-			m.cid = j.getInt("cid");
+			m.cid = cid;
 			m.createTime = new Date();
-			m.money = j.getBigDecimal("money");
-			m.partyA = j.getInt("partyA");
-			m.partyB = j.getInt("partyB");
+			m.money = money;
+			m.partyA = partyA;
+			m.partyB = partyB;
 			mortgagesMapper.insertMortgage(m);
 		} catch (Exception e)
 		{

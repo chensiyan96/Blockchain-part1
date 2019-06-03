@@ -61,6 +61,7 @@ public class AESToken
 		return new String(decryptedBytes);
 	}
 
+
 	public static String getToken(JSON userinfo) throws Exception
 	{
 		try
@@ -79,31 +80,17 @@ public class AESToken
 		}
 	}
 
-	public static JSON verifyToken(String token)
+	public static JSON verifyToken(String token) throws Exception
 	{
-		var res = new JSON();
-		try
+		var bearer = new JSON(decrypt(token));
+		var user = bearer.getJSONObject("User");
+		var time = MDateCmp.parse(bearer.getString("Lifetime"));
+		var now = new Date();
+		if (now.compareTo(time) > 0)
 		{
-			var bearer = new JSON(decrypt(token));
-			var user = bearer.getJSONObject("User");
-			var time = MDateCmp.parse(bearer.getString("Lifetime"));
-			var now = new Date();
-			if (now.compareTo(time) > 0)
-			{
-				throw new Exception("token过期");
-			} else
-			{
-				res.put("status", 1);
-				res.put("msg", "Success");
-				res.put("user", user);
-			}
-
-		} catch (Exception e)
-		{
-			res.put("status", 0);
-			res.put("msg", e.getMessage());
+			throw new Exception("token过期");
 		}
-		return res;
+		return new JSON(user.toString());
 	}
 
 }

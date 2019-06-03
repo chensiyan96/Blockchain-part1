@@ -22,7 +22,7 @@ public class QuartzService
 			// 创建一项作业
 			JobDetail job = JobBuilder.newJob(cls)
 					.withIdentity(jobName, jobGroupName).build();
-			job.getJobDataMap().put("data", data);
+			job.getJobDataMap().put("data", data.toString());
 			// 创建一个触发器
 			CronTrigger trigger = TriggerBuilder.newTrigger()
 					.withIdentity(triggerName, triggerGroupName)

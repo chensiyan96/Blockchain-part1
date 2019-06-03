@@ -21,6 +21,13 @@
       </list>
     </property>
   </bean>
+  <!-- 配置拦截器, -->
+  <mvc:interceptors>
+    <mvc:interceptor>
+      <mvc:mapping path="/**"/>
+      <bean class="com.blockchain.utils.TokenInterceptor"></bean>
+    </mvc:interceptor>
+  </mvc:interceptors>
 
   <!-- SpringMVC使用<mvc:annotation-driven>自动加载RequestMappingHandlerMapping和RequestMappingHandlerAdapter -->
   <mvc:annotation-driven>
@@ -30,6 +37,9 @@
       <bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter"/>
       <ref bean="stringHttpMessageConverter"/>
     </mvc:message-converters>
+    <mvc:argument-resolvers>
+      <bean class="com.blockchain.utils.CurrentUserMethodArgumentResolver"></bean>
+    </mvc:argument-resolvers>
   </mvc:annotation-driven>
 
   <!-- 配置静态资源映射 -->

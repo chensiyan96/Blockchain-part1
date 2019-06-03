@@ -14,17 +14,7 @@ public class CreditService
 {
 
 	@Autowired
-	private final CreditMapper creditMapper;
-
-	public CreditService()
-	{
-		creditMapper = null;
-	}
-
-	public CreditService(CreditMapper creditMapper)
-	{
-		this.creditMapper = creditMapper;
-	}
+	private CreditMapper creditMapper;
 
 	public int create(int partyA, int partyB, Date createTime, Date deadline, BigDecimal money)
 			throws Exception

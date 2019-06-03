@@ -4,6 +4,7 @@ import com.blockchain.dao.AgreementMapper;
 import com.blockchain.model.AgreeStatus;
 import com.blockchain.model.Agreement;
 import java.util.Date;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,17 +15,7 @@ public class AgreementService
 {
 
 	@Autowired
-	private final AgreementMapper agreementMapper;
-
-	public AgreementService()
-	{
-		agreementMapper = null;
-	}
-
-	public AgreementService(AgreementMapper creditMapper)
-	{
-		this.agreementMapper = creditMapper;
-	}
+	private AgreementMapper agreementMapper;
 
 	public int create(int partyA, int partyB, Date createTime, int creditId, String terms)
 			throws Exception
@@ -53,6 +44,11 @@ public class AgreementService
 			throw new Exception("id错误");
 		}
 		return res;
+	}
+
+	public List<Agreement> getAgreementsByUser(int id) throws Exception
+	{
+		return agreementMapper.getAgreements(id);
 	}
 
 	public void updateStatus(AgreeStatus status, int id)

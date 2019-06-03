@@ -12,7 +12,7 @@ public interface FinancingMapper
 
 	@Options(useGeneratedKeys = true)
 	@Insert("insert into Financing (Terms,CreateTime,PartyA,PartyB,Status,Mid,Aid) "
-			+ "values(#{terms},#{createTime},#{partyA},#{partyB},#{status},#{mid}),#{aid}")
+			+ "values(#{terms},#{createTime},#{partyA},#{partyB},#{status},#{mid},#{aid})")
 	int insertFinancing(Financing c);
 
 

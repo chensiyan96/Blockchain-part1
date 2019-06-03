@@ -15,27 +15,17 @@ public class FinancingService
 {
 
 	@Autowired
-	private final FinancingMapper financingMapper;
+	private FinancingMapper financingMapper;
 
-	public FinancingService()
-	{
-		financingMapper = null;
-	}
-
-	public FinancingService(FinancingMapper financingMapper)
-	{
-		this.financingMapper = financingMapper;
-	}
-
-	public int create(JSON j) throws Exception
+	public int create(int aid, int mid, int partyA, int partyB, String terms) throws Exception
 	{
 		Financing f = new Financing();
-		f.aid = j.getInt("aid");
+		f.aid = aid;
 		f.createTime = new Date();
-		f.mid = j.getInt("mid");
-		f.partyA = j.getInt("partyA");
-		f.partyB = j.getInt("partyB");
-		f.terms = j.getString("terms");
+		f.mid = mid;
+		f.partyA = partyA;
+		f.partyB = partyB;
+		f.terms = terms;
 		f.status = FinancingStatus.init;
 		financingMapper.insertFinancing(f);
 

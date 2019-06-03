@@ -14,17 +14,7 @@ public class UserService
 {
 
 	@Autowired
-	private final UserMapper userMapper;
-
-	public UserService()
-	{
-		userMapper = null;
-	}
-
-	public UserService(UserMapper userMapper)
-	{
-		this.userMapper = userMapper;
-	}
+	private UserMapper userMapper;
 
 	/**
 	 * 获取用户的信息

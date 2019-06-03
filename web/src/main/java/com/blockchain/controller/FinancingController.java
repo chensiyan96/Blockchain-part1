@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "api/Financing")
+@RequestMapping(value = "api/financing")
 public class FinancingController
 {
 
@@ -66,13 +66,18 @@ public class FinancingController
 				throw new Exception("登录信息错误");
 			}
 			var f = new JSON(req.getJSONObject("financing").toString());
-			var m = new JSON(req.getJSONObject("mortgage").toString());
-			int mid = mortgageService.create(m);
-			f.put("mid", mid);
-			int fid = financingService.create(f);
+			var m = new JSON(f.getJSONObject("mortgage").toString());
+			int partyA = userService.getUserInfoByEmail(m.getString("partyA")).id;
+			int partyB = userService.getUserInfoByEmail(m.getString("partyB")).id;
+
+			int mid = mortgageService
+					.create(m.getInt("cid"), m.getBigDecimal("money"), partyA, partyB);
+
+			int fid = financingService
+					.create(f.getInt("aid"), mid, partyA, partyB, f.getString("terms"));
 			response.put("status", 1);
 			response.put("msg", "Success");
-			response.put("agreement", fid);
+			response.put("financing", fid);
 
 		} catch (Exception e)
 		{

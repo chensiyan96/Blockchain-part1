@@ -12,13 +12,7 @@ public class AccountService
 {
 
 	@Autowired
-	private final AccountMapper accountMapper;
-
-	public AccountService()
-	{
-
-		accountMapper = null;
-	}
+	private AccountMapper accountMapper;
 
 	public AccountService(AccountMapper accountMapper)
 	{

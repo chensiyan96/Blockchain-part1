@@ -14,17 +14,7 @@ public class MessageService
 {
 
 	@Autowired
-	private final MessageMapper messageMapper;
-
-	public MessageService()
-	{
-		messageMapper = null;
-	}
-
-	public MessageService(MessageMapper financingMapper)
-	{
-		this.messageMapper = financingMapper;
-	}
+	private MessageMapper messageMapper;
 
 	public int create(int partyA, int partyB, String msg)
 			throws Exception

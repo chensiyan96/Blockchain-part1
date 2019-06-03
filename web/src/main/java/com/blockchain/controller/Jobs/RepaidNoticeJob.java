@@ -12,18 +12,7 @@ public class RepaidNoticeJob implements Job
 {
 
 	@Autowired
-	private final MessageService messageService;
-
-	public RepaidNoticeJob()
-	{
-		messageService = null;
-	}
-
-	public RepaidNoticeJob(MessageService messageService)
-	{
-
-		this.messageService = messageService;
-	}
+	private MessageService messageService;
 
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException

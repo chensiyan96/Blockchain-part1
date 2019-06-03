@@ -5,36 +5,28 @@ import com.blockchain.model.User;
 import com.blockchain.service.AccountService;
 import com.blockchain.service.UserService;
 import com.blockchain.utils.AESToken;
+import com.blockchain.utils.Authorization;
+import com.blockchain.utils.CurrentUser;
 import com.blockchain.utils.JSON;
 import com.blockchain.utils.MStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+@CrossOrigin
 @RestController
 @RequestMapping(value = "api/user")
 public class UserController
 {
 
 	@Autowired
-	private final UserService userService;
+	private UserService userService;
 	@Autowired
-	private final AccountService accountService;
-
-	public UserController()
-	{
-		userService = null;
-		accountService = null;
-	}
-
-	public UserController(UserService _service,
-			AccountService accountService)
-	{
-		userService = _service;
-		this.accountService = accountService;
-	}
+	private AccountService accountService;
 
 	@RequestMapping(value = "register", method = {RequestMethod.POST})
 	public String register(@RequestBody String request)
@@ -67,25 +59,22 @@ public class UserController
 		return response.toString();
 	}
 
+	@Authorization
 	@RequestMapping(value = "getUserInfo", method = {RequestMethod.GET})
-	public String getUserInfo(@RequestBody String request)
+	public String getUserInfo(@CurrentUser User u)
 	{
-		var req = new JSON(request);
 		var response = new JSON();
 		try
 		{
-			var token = req.getString("token");
-			var res = AESToken.verifyToken(token);
-			var u = res.getJSONObject("user");
-			var user = userService.getUserInfoByEmail(u.getString("email"));
+			var user = u.toJSON();
 			response.put("status", 1);
 			response.put("msg", "Success");
-			u.put("profile", user.profile);
-			response.put("user", u);
+			user.put("profile", u.profile);
+			response.put("user", user);
 		} catch (Exception e)
 		{
 			response.put("status", 0);
-			response.put("msg", "没有登录");
+			response.put("msg", e.getMessage());
 		}
 		return response.toString();
 	}
@@ -117,23 +106,21 @@ public class UserController
 		return res.toString();
 	}
 
+	@Authorization
 	@RequestMapping(value = "updateUserInfo", method = {RequestMethod.POST})
-	public String updateUserInfo(@RequestBody String request)
+	public String updateUserInfo(@CurrentUser User user, @RequestBody String request)
 	{
 		var req = new JSON(request);
 		var response = new JSON();
 		try
 		{
 			var cpsw = req.getString("confirmPassword");
-			var token = req.getString("token");
-			var res = AESToken.verifyToken(token);
-			var u = res.getJSONObject("user");
-			var id = userService.signIn(u.getString("email"), cpsw);
+			var id = userService.signIn(user.email, cpsw);
 			if (id == 0)
 			{
 				throw new RuntimeException("密码错误");
 			}
-			u = req.getJSONObject("newUser");
+			var u = req.getJSONObject("newUser");
 
 			userService.updateUserinfo(u.getString("companyName"), u.getString("profile"), id);
 
@@ -142,23 +129,21 @@ public class UserController
 		} catch (Exception e)
 		{
 			response.put("status", 0);
-			response.put("msg", "密码错误");
+			response.put("msg", e.getMessage());
 		}
 		return response.toString();
 	}
 
+	@Authorization
 	@RequestMapping(value = "updatePassword", method = {RequestMethod.POST})
-	public String updatePassword(@RequestBody String request)
+	public String updatePassword(@CurrentUser User user, @RequestBody String request)
 	{
 		var req = new JSON(request);
 		var response = new JSON();
 		try
 		{
 			var cpsw = req.getString("confirmPassword");
-			var token = req.getString("token");
-			var res = AESToken.verifyToken(token);
-			var u = res.getJSONObject("user");
-			var id = userService.signIn(u.getString("email"), cpsw);
+			var id = userService.signIn(user.email, cpsw);
 			if (id == 0)
 			{
 				throw new RuntimeException("密码错误");
