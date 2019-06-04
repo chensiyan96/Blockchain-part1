@@ -5,6 +5,7 @@ import com.blockchain.model.Financing;
 import com.blockchain.model.FinancingStatus;
 import com.blockchain.utils.JSON;
 import java.util.Date;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +44,12 @@ public class FinancingService
 		{
 			throw new Exception("id错误");
 		}
+		return res;
+	}
+
+	public List<Financing> getFinancingByUser(int uid) throws Exception
+	{
+		var res = financingMapper.getFinancingByUser(uid);
 		return res;
 	}
 

@@ -14,11 +14,6 @@ public class AccountService
 	@Autowired
 	private AccountMapper accountMapper;
 
-	public AccountService(AccountMapper accountMapper)
-	{
-		this.accountMapper = accountMapper;
-	}
-
 	public BigDecimal getMoney(int uid)
 	{
 		return accountMapper.getUserMoney(uid);

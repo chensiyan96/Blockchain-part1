@@ -1,18 +1,23 @@
 package com.blockchain.controller;
 
 import com.blockchain.model.FinancingStatus;
+import com.blockchain.model.User;
 import com.blockchain.service.AgreementService;
 import com.blockchain.service.FinancingService;
 import com.blockchain.service.MortgageService;
 import com.blockchain.service.PaymentService;
 import com.blockchain.service.UserService;
-import com.blockchain.utils.AESToken;
+import com.blockchain.utils.Authorization;
+import com.blockchain.utils.CurrentUser;
 import com.blockchain.utils.JSON;
 import com.blockchain.utils.MStatusUtils;
+import java.util.LinkedList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -21,50 +26,24 @@ public class FinancingController
 {
 
 	@Autowired
-	private final PaymentService paymentService;
+	private PaymentService paymentService;
 	@Autowired
-	private final UserService userService;
+	private UserService userService;
 	@Autowired
-	private final FinancingService financingService;
+	private FinancingService financingService;
 	@Autowired
-	private final MortgageService mortgageService;
+	private MortgageService mortgageService;
 	@Autowired
-	private final AgreementService agreementService;
+	private AgreementService agreementService;
 
-	public FinancingController()
-	{
-		mortgageService = null;
-		financingService = null;
-		userService = null;
-		paymentService = null;
-		agreementService = null;
-	}
-
-	public FinancingController(PaymentService paymentService,
-			UserService userService, FinancingService financingService,
-			MortgageService mortgageService,
-			AgreementService agreementService)
-	{
-		this.paymentService = paymentService;
-		this.userService = userService;
-		this.financingService = financingService;
-		this.mortgageService = mortgageService;
-		this.agreementService = agreementService;
-	}
-
+	@Authorization
 	@RequestMapping(value = "create", method = {RequestMethod.POST})
-	public String create(@RequestBody String request)
+	public String create(@CurrentUser User user, @RequestBody String request)
 	{
 		JSON req = new JSON(request);
 		JSON response = new JSON();
 		try
 		{
-			var token = req.getString("token");
-			var res = AESToken.verifyToken(token);
-			if (res.getInt("status") == 0)
-			{
-				throw new Exception("登录信息错误");
-			}
 			var f = new JSON(req.getJSONObject("financing").toString());
 			var m = new JSON(f.getJSONObject("mortgage").toString());
 			int partyA = userService.getUserInfoByEmail(m.getString("partyA")).id;
@@ -87,22 +66,15 @@ public class FinancingController
 		return response.toString();
 	}
 
+	@Authorization
 	@RequestMapping(value = "confirm", method = {RequestMethod.POST})
-	public String confirm(@RequestBody String request)
+	public String confirm(@CurrentUser User user, @RequestBody String request)
 	{
 		JSON req = new JSON(request);
 		JSON response = new JSON();
 		try
 		{
-			var token = req.getString("token");
-			var res = AESToken.verifyToken(token);
-			if (res.getInt("status") == 0)
-			{
-				throw new Exception("登录信息错误");
-			}
 			var fid = req.getInt("fid");
-			var user = res.getJSONObject("user");
-			var u = userService.getUserInfoByEmail(user.getString("email"));
 			var status = FinancingStatus.values()[req.getInt("status")];
 			var f = financingService.getFinancing(fid);
 
@@ -111,18 +83,18 @@ public class FinancingController
 				throw new Exception("参数错误");
 			}
 
-			if (status.equals(FinancingStatus.init) && u.id == f.partyA)
+			if (status.equals(FinancingStatus.init) && user.id == f.partyA)
 			{
 				financingService.updateStatus(MStatusUtils.getNextFinancingStatus(status), fid);
 			} else if (status.equals(FinancingStatus.confirminfo))
 			{
 				var tmp = agreementService.getAgreement(f.aid);
-				if (u.id == tmp.partyA)
+				if (user.id == tmp.partyA)
 				{
 					financingService.updateStatus(MStatusUtils.getNextFinancingStatus(status), fid);
 				}
 
-			} else if (status.equals(FinancingStatus.paid) && u.id == f.partyB)
+			} else if (status.equals(FinancingStatus.paid) && user.id == f.partyB)
 			{
 				financingService.updateStatus(MStatusUtils.getNextFinancingStatus(status), fid);
 			} else
@@ -131,7 +103,6 @@ public class FinancingController
 			}
 			response.put("status", 1);
 			response.put("msg", "Success");
-			response.put("agreement", fid);
 
 		} catch (Exception e)
 		{
@@ -141,27 +112,20 @@ public class FinancingController
 		return response.toString();
 	}
 
+	@Authorization
 	@RequestMapping(value = "pay", method = {RequestMethod.POST})
-	public String pay(@RequestBody String request)
+	public String pay(@CurrentUser User user, @RequestBody String request)
 	{
 		JSON req = new JSON(request);
 		JSON response = new JSON();
 		try
 		{
-			var token = req.getString("token");
-			var res = AESToken.verifyToken(token);
-			if (res.getInt("status") == 0)
-			{
-				throw new Exception("登录信息错误");
-			}
 			var fid = req.getInt("fid");
-			var user = res.getJSONObject("user");
 			var money = req.getBigDecimal("money");
-			var u = userService.getUserInfoByEmail(user.getString("email"));
 			var status = FinancingStatus.values()[req.getInt("status")];
 			var f = financingService.getFinancing(fid);
 
-			if (status != FinancingStatus.cbConfirm || u.id != f.partyA)
+			if (status != FinancingStatus.cbConfirm || user.id != f.partyA)
 			{
 				throw new Exception("参数错误");
 			}
@@ -179,27 +143,47 @@ public class FinancingController
 		return response.toString();
 	}
 
-	@RequestMapping(value = "getFinancing", method = {RequestMethod.POST})
-	public String getFinancing(@RequestBody String request)
+	@Authorization
+	@RequestMapping(value = "getFinancing", method = {RequestMethod.GET})
+	public String getFinancing(@CurrentUser User user, @RequestParam("mid") int fid)
 	{
-		JSON req = new JSON(request);
 		JSON response = new JSON();
 		try
 		{
-			var token = req.getString("token");
-			var res = AESToken.verifyToken(token);
-			if (res.getInt("status") == 0)
-			{
-				throw new Exception("登录信息错误");
-			}
-			var fid = req.getInt("fid");
 			var f = financingService.getFinancing(fid);
 			var m = mortgageService.getMortgage(f.mid);
-
+			var fi = f.toJSON();
+			fi.put("mortgage", m.toJSON());
 			response.put("status", 1);
 			response.put("msg", "Success");
-			response.put("financing", f);
-			response.put("mortgage", m);
+			response.put("financing", fi);
+		} catch (Exception e)
+		{
+			response.put("status", 0);
+			response.put("msg", e.getMessage());
+		}
+		return response.toString();
+	}
+
+	@Authorization
+	@RequestMapping(value = "getFinancingByUser", method = {RequestMethod.GET})
+	public String getFinancingByUser(@CurrentUser User user)
+	{
+		JSON response = new JSON();
+		try
+		{
+			var f = financingService.getFinancingByUser(user.id);
+			List<JSON> t = new LinkedList<>();
+			for (var i : f)
+			{
+				var m = mortgageService.getMortgage(i.mid).toJSON();
+				var tmp = i.toJSON();
+				tmp.put("mortgage", m);
+				t.add(tmp);
+			}
+			response.put("status", 1);
+			response.put("msg", "Success");
+			response.put("financing", t);
 		} catch (Exception e)
 		{
 			response.put("status", 0);

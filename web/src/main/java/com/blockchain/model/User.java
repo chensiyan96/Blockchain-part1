@@ -2,7 +2,6 @@ package com.blockchain.model;
 
 import com.blockchain.utils.JSON;
 
-//todo: 完善用户信息
 public class User
 {
 

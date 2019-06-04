@@ -26,8 +26,6 @@ public class AccountController
 	private AccountService accountService;
 	@Autowired
 	private PaymentService paymentService;
-	@Autowired
-	private UserService userService;
 
 	@Authorization
 	@RequestMapping(value = "getMoney", method = {RequestMethod.GET})
