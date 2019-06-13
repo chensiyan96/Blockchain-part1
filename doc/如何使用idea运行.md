@@ -8,7 +8,7 @@ git的操作，不用多说吧
 
 首先确认一下IDEA的maven，打开设置，找到Maven选项（我的是自己额外配的，IDEA有自带）
 
-![](images/1.png)
+![](../images/1.png)
 
 修改一下usersettingsfile里的那个文件，换成国内源
 
@@ -29,9 +29,9 @@ git的操作，不用多说吧
 
 然后IDEA点击Run -> Edit Conf，接着按图示顺序添加Tomcat，其中configure是选择刚下载的tomcat的位置，
 
-![](images/2.png)
+![](../images/2.png)
 
-![](images/3.png)
+![](../images/3.png)
 
 
 ## 修改代码配置文件

@@ -18,7 +18,7 @@ postman就是一款很好的api测试程序。
 
 一图流
 
-![](images/4.png)
+![](../images/4.png)
 
 ## Postman生成API文档
 
@@ -28,7 +28,7 @@ https://crifan.github.io/api_tool_postman/website/postman_api_doc/
 
 我们的程序没有使用表单，全都是json进json出，所以指定参数的时候不能用formdata，而是用json
 
-![](images/5.png)
+![](../images/5.png)
 
 ## 杂项
 
