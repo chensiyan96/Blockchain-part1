@@ -1,5 +1,8 @@
 package com.blockchain.utils;
 
+import com.blockchain.model.Interface.ToJSON;
+import java.util.ArrayList;
+import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -106,4 +109,15 @@ public class JSON extends JSONObject
 			return null;
 		}
 	}
+
+	public static <T extends ToJSON> List<JSON> list2Json(List<T> list)
+	{
+		List<JSON> res = new ArrayList<>();
+		for (T i : list)
+		{
+			res.add(i.toJSON());
+		}
+		return res;
+	}
+
 }

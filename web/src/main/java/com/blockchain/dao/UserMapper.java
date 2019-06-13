@@ -1,6 +1,7 @@
 package com.blockchain.dao;
 
 import com.blockchain.model.*;
+import java.util.List;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -37,4 +38,5 @@ public interface UserMapper
 
 	@Select(" SELECT Id from Users where NormalizedEmail = #{email} and PasswordHash = #{psw}")
 	int verifyUser(@Param("email") String email, @Param("psw") String psw);
+
 }

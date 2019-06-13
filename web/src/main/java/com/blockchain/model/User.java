@@ -1,8 +1,9 @@
 package com.blockchain.model;
 
+import com.blockchain.model.Interface.ToJSON;
 import com.blockchain.utils.JSON;
 
-public class User
+public class User implements ToJSON
 {
 
 	public int id;

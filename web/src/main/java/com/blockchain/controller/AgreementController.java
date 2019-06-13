@@ -156,7 +156,7 @@ public class AgreementController
 
 	@Authorization
 	@RequestMapping(value = "getAgreement", method = {RequestMethod.GET})
-	public String getAgreement(@CurrentUser User user, @RequestParam("aid") int aid)
+	public String getAgreement(@CurrentUser User user, @RequestParam("aid") Integer aid)
 	{
 		JSON response = new JSON();
 		try

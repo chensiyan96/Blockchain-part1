@@ -1,6 +1,7 @@
 package com.blockchain.dao;
 
 import com.blockchain.model.Payment;
+import java.util.List;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +16,7 @@ public interface PaymentMapper
 
 	@Select("select * from Payments where Id = #{id}")
 	Payment getPayment(@Param("id")int id);
+
+	@Select("select * from Payments where partyA = #{id} || partyB = #{id}")
+	List<Payment> getPayments(@Param("id")int id);
 }

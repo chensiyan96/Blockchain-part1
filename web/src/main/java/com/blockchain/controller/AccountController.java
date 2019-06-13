@@ -9,6 +9,8 @@ import com.blockchain.utils.Authorization;
 import com.blockchain.utils.CurrentUser;
 import com.blockchain.utils.JSON;
 import java.math.BigDecimal;
+import java.util.LinkedList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -85,4 +87,29 @@ public class AccountController
 		}
 		return response.toString();
 	}
+
+	@Authorization
+	@RequestMapping(value = "getPayments", method = {RequestMethod.GET})
+	public String getPayments(@CurrentUser User user)
+	{
+		var response = new JSON();
+		try
+		{
+			var r = paymentService.getPaymentsByUser(user.id);
+			List<JSON> j = new LinkedList<>();
+			for (var i : r)
+			{
+				j.add(i.toJSON());
+			}
+			response.put("status", 1);
+			response.put("msg", "Success");
+			response.put("data", j);
+		} catch (Exception e)
+		{
+			response.put("status", 0);
+			response.put("msg", e.getMessage());
+		}
+		return response.toString();
+	}
+
 }
