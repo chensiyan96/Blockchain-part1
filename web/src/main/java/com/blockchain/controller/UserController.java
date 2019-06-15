@@ -38,7 +38,10 @@ public class UserController
 			user.email = req.getString("email");
 			user.normalizedEmail = MStringUtils.normalize(req.getString("email"));
 			user.companyName = req.getString("name");
+
+			MStringUtils.confirmPsw(req.getString("password"));
 			user.passwordHash = AESToken.encrypt(req.getString("password"));
+
 			user.role = Roles.valueOf(req.getString("role"));
 			user.profile = req.getString("profile");
 			if (userService.isEmailExist(user.email))
@@ -149,6 +152,7 @@ public class UserController
 				throw new RuntimeException("密码错误");
 			}
 			var psw = req.getString("newPassword");
+			MStringUtils.confirmPsw(req.getString("psw"));
 
 			userService.updatePassword(psw, id);
 
