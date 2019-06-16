@@ -20,4 +20,13 @@ public class MStringUtils
 		return true;
 	}
 
+	public  static boolean confirmEmail(String str)throws Exception
+	{
+		if(str == null || str.isEmpty())
+		{
+			throw new Exception("邮箱不能为空");
+		}
+		return true;
+	}
+
 }

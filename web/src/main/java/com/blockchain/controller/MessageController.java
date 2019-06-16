@@ -77,6 +77,9 @@ public class MessageController
 			if (messages.partyB == user.id)
 			{
 				messageService.updateStatus(mid);
+			}else
+			{
+				throw new Exception("用户不匹配");
 			}
 			response.put("status", 1);
 			response.put("msg", "Success");

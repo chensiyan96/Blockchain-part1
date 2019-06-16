@@ -35,7 +35,10 @@ public class UserController
 		try
 		{
 			User user = new User();
+
+			MStringUtils.confirmEmail(req.getString("email"));
 			user.email = req.getString("email");
+
 			user.normalizedEmail = MStringUtils.normalize(req.getString("email"));
 			user.companyName = req.getString("name");
 
@@ -152,7 +155,7 @@ public class UserController
 				throw new RuntimeException("密码错误");
 			}
 			var psw = req.getString("newPassword");
-			MStringUtils.confirmPsw(req.getString("psw"));
+			MStringUtils.confirmPsw(psw);
 
 			userService.updatePassword(psw, id);
 

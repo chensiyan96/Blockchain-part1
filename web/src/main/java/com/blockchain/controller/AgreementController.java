@@ -137,13 +137,14 @@ public class AgreementController
 			var ag = agreementService.getAgreement(aid);
 			var cd = creditService.getCredit(ag.creditId);
 
-			if (status != AgreeStatus.comfirmship || u.id != cd.partyA)
+			if (status != AgreeStatus.comfirmship || !status.equals(ag.status) || u.id != cd.partyA)
 			{
 				throw new Exception("参数错误");
 			}
 
 			paymentService.transfer(cd.partyA, cd.partyB, cd.money);
 			creditService.updateStatus(1, cd.id);
+			agreementService.updateStatus(MStatusUtils.getNextAgreeStatus(status), aid);
 			response.put("status", 1);
 			response.put("msg", "Success");
 		} catch (Exception e)

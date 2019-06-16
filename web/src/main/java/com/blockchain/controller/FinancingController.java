@@ -44,8 +44,16 @@ public class FinancingController
 		JSON response = new JSON();
 		try
 		{
+
 			var f = new JSON(req.getJSONObject("financing").toString());
 			var m = new JSON(f.getJSONObject("mortgage").toString());
+			var aid = f.getInt("aid");
+			var cid = m.getInt("cid");
+			if(agreementService.getAgreement(aid) == null)
+			{
+				throw new Exception("合同不存在");
+			}
+
 			int partyA = userService.getUserInfoByEmail(m.getString("partyA")).id;
 			int partyB = userService.getUserInfoByEmail(m.getString("partyB")).id;
 
@@ -92,6 +100,9 @@ public class FinancingController
 				if (user.id == tmp.partyA)
 				{
 					financingService.updateStatus(MStatusUtils.getNextFinancingStatus(status), fid);
+				} else
+				{
+					throw new Exception("参数错误");
 				}
 
 			} else if (status.equals(FinancingStatus.paid) && user.id == f.partyB)
@@ -145,7 +156,7 @@ public class FinancingController
 
 	@Authorization
 	@RequestMapping(value = "getFinancing", method = {RequestMethod.GET})
-	public String getFinancing(@CurrentUser User user, @RequestParam("mid") int fid)
+	public String getFinancing(@CurrentUser User user, @RequestParam("fid") int fid)
 	{
 		JSON response = new JSON();
 		try
