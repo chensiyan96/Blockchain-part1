@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:mvc="http://www.springframework.org/schema/mvc"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+       					   http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+        				   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+
+  <!-- 配置扫描注解  @Controller @Service -->
+  <context:component-scan base-package="com.blockchain"/>
+
+  <!-- 改变 StringHttpMessageConverter 中的默认字符集为UTF-8，避免前端乱码 -->
+  <bean id="stringHttpMessageConverter"
+    class="org.springframework.http.converter.StringHttpMessageConverter">
+    <constructor-arg value="UTF-8" index="0"/>
+    <property name="supportedMediaTypes">
+      <list>
+        <value>application/json;charset=UTF-8</value>
+      </list>
+    </property>
+  </bean>
+  <!-- 配置拦截器, -->
+  <mvc:interceptors>
+    <mvc:interceptor>
+      <mvc:mapping path="/**"/>
+      <bean class="com.blockchain.utils.TokenInterceptor"></bean>
+    </mvc:interceptor>
+  </mvc:interceptors>
+
+  <!-- SpringMVC使用<mvc:annotation-driven>自动加载RequestMappingHandlerMapping和RequestMappingHandlerAdapter -->
+  <mvc:annotation-driven>
+    <!-- 中文乱码 -->
+    <mvc:message-converters register-defaults="true">
+      <!-- 自定义的converter必须在这里注册，不然是不会有效的 -->
+      <bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter"/>
+      <ref bean="stringHttpMessageConverter"/>
+    </mvc:message-converters>
+    <mvc:argument-resolvers>
+      <bean class="com.blockchain.utils.CurrentUserMethodArgumentResolver"></bean>
+    </mvc:argument-resolvers>
+  </mvc:annotation-driven>
+
+  <!-- 配置静态资源映射 -->
+  <!--<mvc:resources location="/js/" mapping="/js/**"/>-->
+
+  <!-- 配置视图解析器 -->
+  <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <!-- 配置逻辑视图的前缀 -->
+    <property name="prefix" value="/WEB-INF/jsp/"/>
+    <!-- 配置逻辑视图的后缀 -->
+    <property name="suffix" value=".jsp"/>
+
+  </bean>
+
+  <!-- 定义文件上传解析器 -->
+  <!-- <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    设定默认编码
+    <property name="defaultEncoding" value="UTF-8"></property>
+    设定文件上传的最大值5MB，5*1024*1024
+    <property name="maxUploadSize" value="5242880"></property>
+  </bean> -->
+
+
+</beans>
