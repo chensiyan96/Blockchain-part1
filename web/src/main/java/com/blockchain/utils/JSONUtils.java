@@ -16,6 +16,15 @@ public class JSONUtils
 		return response.toString();
 	}
 
+	public static <T> String successResponse(String content_name, T content_data)
+	{
+		var response = new JSONObject();
+		response.put("status", 1);
+		response.put("msg", "Success");
+		response.put(content_name, content_data);
+		return response.toString();
+	}
+
 	public static String failResponse(String msg)
 	{
 		var response = new JSONObject();

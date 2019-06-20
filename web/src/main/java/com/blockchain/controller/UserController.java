@@ -39,7 +39,7 @@ public class UserController
 
 		User user = new User();
 		user.email = email;
-		user.companyName = req.getString("companyName");
+		user.companyName = req.getString("name");
 
 		try	{
 			user.passwordHash = AESToken.encrypt(password);
@@ -69,107 +69,93 @@ public class UserController
 	@RequestMapping(value = "login", method = { RequestMethod.POST })
 	public String login(@RequestBody String request)
 	{
-		var req = new JSONObject(request);
-		var res = new JSONObject();
-		try
-		{
-			var id = userService.signIn(req.getString("email"), req.getString("password"));
-			if (id == 0)
-			{
-				throw new Exception("用户名或者密码错误");
+		try {
+			var req = new JSONObject(request);
+			var email = req.getString("email").toUpperCase();
+			var password = req.getString("password");
+			var passwordHash = AESToken.encrypt(password);
+			var id = userService.signIn(email, passwordHash);
+			if (id == 0) {
+				return JSONUtils.failResponse("用户名或者密码错误");
 			}
 			var user = userService.getUserInfoByID(id);
-			var userInfo = user.toJSON();
+			var token = AESToken.getToken(user.toJSON());
+			return JSONUtils.successResponse("data", token);
 
-			var token = AESToken.getToken(userInfo);
-			res.put("status", 1);
-			res.put("msg", "Success");
-			res.put("data", token);
-		} catch (Exception e)
-		{
-			res.put("status", 0);
-			res.put("msg", "用户名或者密码错误");
+		} catch (InvalidAlgorithmParameterException e) {
+			return JSONUtils.failResponse(e.getMessage());
+		} catch (InvalidKeyException e) {
+			return JSONUtils.failResponse(e.getMessage());
+		} catch (BadPaddingException e) {
+			return JSONUtils.failResponse(e.getMessage());
+		} catch (IllegalBlockSizeException e) {
+			return JSONUtils.failResponse(e.getMessage());
 		}
-		return res.toString();
 	}
 
+	// 获取用户信息
 	@Authorization
-	@RequestMapping(value = "getUserInfo", method = {RequestMethod.GET})
-	public String getUserInfo(@CurrentUser User u)
+	@RequestMapping(value = "getUserInfo", method = { RequestMethod.GET })
+	public String getUserInfo(@CurrentUser User user)
 	{
-		var response = new JSONObject();
-		try
-		{
-
-			var user = u.toJSON();
-			response.put("status", 1);
-			response.put("msg", "Success");
-			user.put("profile", u.profile);
-			response.put("user", user);
-		} catch (Exception e)
-		{
-			response.put("status", 0);
-			response.put("msg", e.getMessage());
-		}
-		return response.toString();
+		return JSONUtils.successResponse("user", user.toJSON());
 	}
 
-
-
+	// 更新用户信息
 	@Authorization
 	@RequestMapping(value = "updateUserInfo", method = {RequestMethod.POST})
 	public String updateUserInfo(@CurrentUser User user, @RequestBody String request)
 	{
 		var req = new JSONObject(request);
-		var response = new JSONObject();
-		try
-		{
-			var cpsw = req.getString("confirmPassword");
-			var id = userService.signIn(user.email, cpsw);
-			if (id == 0)
-			{
-				throw new RuntimeException("密码错误");
+		var password = req.getString("confirmPassword");
+
+		try {
+			var passwordHash = AESToken.encrypt(password);
+			if (!passwordHash.equals(user.passwordHash)) {
+				return JSONUtils.failResponse("密码错误");
 			}
-			var u = req.getJSONObject("newUser");
-
-			userService.updateUserinfo(u.getString("companyName"), u.getString("profile"), id);
-
-			response.put("status", 1);
-			response.put("msg", "Success");
-		} catch (Exception e)
-		{
-			response.put("status", 0);
-			response.put("msg", e.getMessage());
+		} catch (InvalidAlgorithmParameterException e) {
+			return JSONUtils.failResponse(e.getMessage());
+		} catch (InvalidKeyException e) {
+			return JSONUtils.failResponse(e.getMessage());
+		} catch (BadPaddingException e) {
+			return JSONUtils.failResponse(e.getMessage());
+		} catch (IllegalBlockSizeException e) {
+			return JSONUtils.failResponse(e.getMessage());
 		}
-		return response.toString();
+
+		var u = req.getJSONObject("newUser");
+		user.companyName = u.getString("companyName");
+		user.profile = u.getString("profile");
+		userService.updateUserinfo(user.id, user.companyName, user.profile);
+		return JSONUtils.successResponse();
 	}
 
+	// 修改密码
 	@Authorization
 	@RequestMapping(value = "updatePassword", method = {RequestMethod.POST})
 	public String updatePassword(@CurrentUser User user, @RequestBody String request)
 	{
-		var req = new JSONObject(request);
-		var response = new JSONObject();
-		try
-		{
-			var cpsw = req.getString("confirmPassword");
-			var id = userService.signIn(user.email, cpsw);
-			if (id == 0)
-			{
-				throw new RuntimeException("密码错误");
+		try {
+			var req = new JSONObject(request);
+			var password = req.getString("confirmPassword");
+			var passwordHash = AESToken.encrypt(password);
+			if (!passwordHash.equals(user.passwordHash)) {
+				return JSONUtils.failResponse("密码错误");
 			}
-			var psw = req.getString("newPassword");
-			MStringUtils.confirmPsw(psw);
+			user.passwordHash = AESToken.encrypt(req.getString("newPassword"));
 
-			userService.updatePassword(psw, id);
-
-			response.put("status", 1);
-			response.put("msg", "Success");
-		} catch (Exception e)
-		{
-			response.put("status", 0);
-			response.put("msg", e.getMessage());
+		} catch (InvalidAlgorithmParameterException e) {
+			return JSONUtils.failResponse(e.getMessage());
+		} catch (InvalidKeyException e) {
+			return JSONUtils.failResponse(e.getMessage());
+		} catch (BadPaddingException e) {
+			return JSONUtils.failResponse(e.getMessage());
+		} catch (IllegalBlockSizeException e) {
+			return JSONUtils.failResponse(e.getMessage());
 		}
-		return response.toString();
+
+		userService.updatePassword(user.id, user.passwordHash);
+		return JSONUtils.successResponse();
 	}
 }

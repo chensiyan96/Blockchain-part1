@@ -59,22 +59,16 @@ public class AESToken
 	}
 
 
-	public static String getToken(JSONObject userinfo) throws Exception
+	public static String getToken(JSONObject userinfo) throws IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, InvalidKeyException
 	{
-		try
-		{
-			var bearer = new JSONObject();
-			bearer.put("KEY", KEY);
-			bearer.put("User", userinfo);
-			Date now = new Date();
+		var bearer = new JSONObject();
+		bearer.put("KEY", KEY);
+		bearer.put("User", userinfo);
+		Date now = new Date();
 
-			bearer.put("Lifetime", MDateCmp.timeFormat(MDateCmp.timeAdd(7, now)));
+		bearer.put("Lifetime", MDateCmp.timeFormat(MDateCmp.timeAdd(7, now)));
 
-			return encrypt(bearer.toString());
-		} catch (Exception e)
-		{
-			throw e;
-		}
+		return encrypt(bearer.toString());
 	}
 
 	public static JSONObject verifyToken(String token) throws Exception

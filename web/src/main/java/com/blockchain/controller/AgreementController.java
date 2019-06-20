@@ -1,10 +1,12 @@
 package com.blockchain.controller;
 
-import com.blockchain.controller.Jobs.RepaidNoticeJob;
 import com.blockchain.model.AgreeStatus;
 import com.blockchain.model.User;
 import com.blockchain.service.*;
-import com.blockchain.utils.*;
+import com.blockchain.utils.Authorization;
+import com.blockchain.utils.CurrentUser;
+import com.blockchain.utils.MDateCmp;
+import com.blockchain.utils.MStatusUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -52,8 +54,8 @@ public class AgreementController
 			t.put("partyA", partyA);
 			t.put("partyB", partyB);
 			t.put("msg", "nmd 该还钱了");
-			quartzService.addJob("credit" + cid, "credit", "nmsl", "nmsl", RepaidNoticeJob.class,
-					MDateCmp.cronFormate(ddl), t);
+//			quartzService.addJob("credit" + cid, "credit", "nmsl", "nmsl", RepaidNoticeJob.class,
+//					MDateCmp.cronFormate(ddl), t);
 			response.put("status", 1);
 			response.put("msg", "Success");
 			response.put("agreement", aid);
