@@ -1,7 +1,7 @@
 package com.blockchain.controller.Jobs;
 
 import com.blockchain.service.MessageService;
-import com.blockchain.utils.JSON;
+import org.json.JSONObject;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -18,7 +18,7 @@ public class RepaidNoticeJob implements Job
 	public void execute(JobExecutionContext arg0) throws JobExecutionException
 	{
 		JobDataMap dataMap = arg0.getJobDetail().getJobDataMap();
-		JSON j = (JSON) dataMap.get("data");
+		JSONObject j = (JSONObject) dataMap.get("data");
 		try
 		{
 			messageService.create(j.getInt("partyA"), j.getInt("partyB"),

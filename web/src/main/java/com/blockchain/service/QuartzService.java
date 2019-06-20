@@ -1,6 +1,6 @@
 package com.blockchain.service;
 
-import com.blockchain.utils.JSON;
+import org.json.JSONObject;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ public class QuartzService
 	private Scheduler quartzScheduler;
 
 	public void addJob(String jobName, String jobGroupName, String triggerName,
-			String triggerGroupName, Class cls, String cron, JSON data)
+			String triggerGroupName, Class cls, String cron, JSONObject data)
 	{
 		try
 		{
@@ -72,7 +72,7 @@ public class QuartzService
 			sched.deleteJob(jobKey);
 
 			addJob(jobName, jobGroup, triggerName, triggerGroup, jobClass,
-					cron, new JSON());
+					cron, new JSONObject());
 
 			return true;
 		} catch (Exception e)

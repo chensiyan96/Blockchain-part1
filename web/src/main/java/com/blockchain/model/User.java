@@ -1,27 +1,32 @@
 package com.blockchain.model;
 
-import com.blockchain.model.Interface.ToJSON;
-import com.blockchain.utils.JSON;
+import org.json.JSONObject;
 
 public class User implements ToJSON
 {
+    public enum Roles
+    {
+        CoreBusiness,
+        Supplier,
+        Bank,
+        Admin
+    }
 
 	public int id;
-
-	public String passwordHash;
-	public String companyName;
 	public String email;
-	public String normalizedEmail;
-	public String profile;
+	public String companyName;
+	public String passwordHash;
 	public Roles role;
+	public String profile;
 
-	public JSON toJSON()
+	@Override
+	public JSONObject toJSON()
 	{
-		JSON user = new JSON();
-		user.put("email", normalizedEmail);
+		var user = new JSONObject();
+		user.put("email", email);
 		user.put("name", companyName);
-		//user.put("profile", profile);
 		user.put("role", role);
+		user.put("profile", profile);
 		return user;
 	}
 }

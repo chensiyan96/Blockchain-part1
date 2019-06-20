@@ -2,11 +2,6 @@ package com.blockchain.utils;
 
 public class MStringUtils
 {
-	public static String normalize(String str)
-	{
-		return str.toUpperCase();
-	}
-
 	public static boolean confirmPsw(String str)throws Exception
 	{
 		if(str == null || str.isEmpty())
@@ -20,11 +15,11 @@ public class MStringUtils
 		return true;
 	}
 
-	public  static boolean confirmEmail(String str)throws Exception
+	public  static boolean confirmEmail(String str)
 	{
 		if(str == null || str.isEmpty())
 		{
-			throw new Exception("邮箱不能为空");
+			return false;
 		}
 		return true;
 	}

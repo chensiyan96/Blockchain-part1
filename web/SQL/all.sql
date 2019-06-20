@@ -11,13 +11,13 @@ DROP TABLE IF EXISTS users;
 
 -- 基本用户信息
 CREATE TABLE `Users` (
-	  `Id` INT NOT NULL auto_increment,
-    `Email` varchar(256) NOT NULL,
-    `NormalizedEmail` varchar(256) NOT NULL,
-    `PasswordHash` longtext NOT NULL,
+	`Id` INT NOT NULL auto_increment,
+    `Email` varchar(255) NOT NULL,
     `CompanyName` longtext NULL,
+    `PasswordHash` longtext NOT NULL,
+    `Role` varchar(255) NOT NULL,
     `Profile`longtext NULL,
-    `Role` varchar(256) NULL,
+
 	PRIMARY KEY (`Id`)
  ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 

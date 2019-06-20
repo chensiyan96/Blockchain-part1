@@ -2,7 +2,7 @@ package com.blockchain.service;
 
 import com.blockchain.dao.MortgagesMapper;
 import com.blockchain.model.Mortgages;
-import com.blockchain.utils.JSON;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;

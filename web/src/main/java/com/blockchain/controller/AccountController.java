@@ -3,20 +3,15 @@ package com.blockchain.controller;
 import com.blockchain.model.User;
 import com.blockchain.service.AccountService;
 import com.blockchain.service.PaymentService;
-import com.blockchain.service.UserService;
-import com.blockchain.utils.AESToken;
 import com.blockchain.utils.Authorization;
 import com.blockchain.utils.CurrentUser;
-import com.blockchain.utils.JSON;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin
 @RestController
@@ -33,7 +28,7 @@ public class AccountController
 	@RequestMapping(value = "getMoney", method = {RequestMethod.GET})
 	public String getMoney(@CurrentUser User user)
 	{
-		var response = new JSON();
+		var response = new JSONObject();
 		try
 		{
 			var money = accountService.getMoney(user.id);
@@ -52,8 +47,8 @@ public class AccountController
 	@RequestMapping(value = "recharge", method = {RequestMethod.POST})
 	public String recharge(@CurrentUser User user, @RequestBody String request)
 	{
-		var req = new JSON(request);
-		var response = new JSON();
+		var req = new JSONObject(request);
+		var response = new JSONObject();
 		try
 		{
 			var money = new BigDecimal(req.getString("money"));
@@ -72,8 +67,8 @@ public class AccountController
 	@RequestMapping(value = "withdraw", method = {RequestMethod.POST})
 	public String withdraw(@CurrentUser User user, @RequestBody String request)
 	{
-		var req = new JSON(request);
-		var response = new JSON();
+		var req = new JSONObject(request);
+		var response = new JSONObject();
 		try
 		{
 			var money = new BigDecimal(req.getString("money"));
@@ -92,11 +87,11 @@ public class AccountController
 	@RequestMapping(value = "getPayments", method = {RequestMethod.GET})
 	public String getPayments(@CurrentUser User user)
 	{
-		var response = new JSON();
+		var response = new JSONObject();
 		try
 		{
 			var r = paymentService.getPaymentsByUser(user.id);
-			List<JSON> j = new LinkedList<>();
+			List<JSONObject> j = new LinkedList<>();
 			for (var i : r)
 			{
 				j.add(i.toJSON());

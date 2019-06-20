@@ -1,7 +1,8 @@
 package com.blockchain.model;
 
-import com.blockchain.utils.JSON;
 import com.blockchain.utils.MDateCmp;
+import org.json.JSONObject;
+
 import java.util.Date;
 
 public class Message
@@ -14,9 +15,9 @@ public class Message
 	public int partyB;
 	public int status;
 
-	public JSON toJson()
+	public JSONObject toJson()
 	{
-		JSON res = new JSON();
+		var res = new JSONObject();
 		res.put("id", id);
 		res.put("partyA", partyA);
 		res.put("partyB", partyB);

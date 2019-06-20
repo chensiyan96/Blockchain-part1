@@ -1,7 +1,6 @@
 package com.blockchain.dao;
 
-import com.blockchain.model.*;
-import java.util.List;
+import com.blockchain.model.User;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -9,11 +8,10 @@ import org.springframework.stereotype.Repository;
 @Mapper
 public interface UserMapper
 {
-
 	@Select(" SELECT * FROM users WHERE Id = #{uid} ")
 	User getUserInfo(@Param("uid") int uid);
 
-	@Select(" SELECT * FROM users WHERE NormalizedEmail = #{email} ")
+	@Select(" SELECT * FROM users WHERE Email = #{email} ")
 	User getUserInfoByEmail(@Param("email") String email);
 
 	@Update(" UPDATE Users " +
@@ -29,14 +27,13 @@ public interface UserMapper
 
 	@Options(useGeneratedKeys = true)
 	@Insert("INSERT INTO Users "
-			+ "(PasswordHash,Email,NormalizedEmail,CompanyName,Profile,Role) "
-			+ "VALUES (#{passwordHash},#{email},#{normalizedEmail},#{companyName},#{profile},#{role})")
+			+ "(Email,CompanyName,PasswordHash,Role,Profile) "
+			+ "VALUES (#{email},#{companyName},#{passwordHash},#{role},#{profile})")
 	int insertUser(User user);
 
-	@Select(" SELECT count(*) from Users where NormalizedEmail = #{email}")
+	@Select(" SELECT count(*) from Users where email = #{email}")
 	int isEmailExist(@Param("email") String email);
 
-	@Select(" SELECT Id from Users where NormalizedEmail = #{email} and PasswordHash = #{psw}")
+	@Select(" SELECT Id from Users where email = #{email} and PasswordHash = #{psw}")
 	int verifyUser(@Param("email") String email, @Param("psw") String psw);
-
 }

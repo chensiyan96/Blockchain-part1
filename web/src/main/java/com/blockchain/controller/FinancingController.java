@@ -2,23 +2,16 @@ package com.blockchain.controller;
 
 import com.blockchain.model.FinancingStatus;
 import com.blockchain.model.User;
-import com.blockchain.service.AgreementService;
-import com.blockchain.service.FinancingService;
-import com.blockchain.service.MortgageService;
-import com.blockchain.service.PaymentService;
-import com.blockchain.service.UserService;
+import com.blockchain.service.*;
 import com.blockchain.utils.Authorization;
 import com.blockchain.utils.CurrentUser;
-import com.blockchain.utils.JSON;
 import com.blockchain.utils.MStatusUtils;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.LinkedList;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "api/financing")
@@ -40,13 +33,13 @@ public class FinancingController
 	@RequestMapping(value = "create", method = {RequestMethod.POST})
 	public String create(@CurrentUser User user, @RequestBody String request)
 	{
-		JSON req = new JSON(request);
-		JSON response = new JSON();
+		var req = new JSONObject(request);
+		var response = new JSONObject();
 		try
 		{
 
-			var f = new JSON(req.getJSONObject("financing").toString());
-			var m = new JSON(f.getJSONObject("mortgage").toString());
+			var f = new JSONObject(req.getJSONObject("financing").toString());
+			var m = new JSONObject(f.getJSONObject("mortgage").toString());
 			var aid = f.getInt("aid");
 			var cid = m.getInt("cid");
 			if(agreementService.getAgreement(aid) == null)
@@ -78,8 +71,8 @@ public class FinancingController
 	@RequestMapping(value = "confirm", method = {RequestMethod.POST})
 	public String confirm(@CurrentUser User user, @RequestBody String request)
 	{
-		JSON req = new JSON(request);
-		JSON response = new JSON();
+		var req = new JSONObject(request);
+		var response = new JSONObject();
 		try
 		{
 			var fid = req.getInt("fid");
@@ -127,8 +120,8 @@ public class FinancingController
 	@RequestMapping(value = "pay", method = {RequestMethod.POST})
 	public String pay(@CurrentUser User user, @RequestBody String request)
 	{
-		JSON req = new JSON(request);
-		JSON response = new JSON();
+		var req = new JSONObject(request);
+		var response = new JSONObject();
 		try
 		{
 			var fid = req.getInt("fid");
@@ -158,7 +151,7 @@ public class FinancingController
 	@RequestMapping(value = "getFinancing", method = {RequestMethod.GET})
 	public String getFinancing(@CurrentUser User user, @RequestParam("fid") int fid)
 	{
-		JSON response = new JSON();
+		var response = new JSONObject();
 		try
 		{
 			var f = financingService.getFinancing(fid);
@@ -180,11 +173,11 @@ public class FinancingController
 	@RequestMapping(value = "getFinancingByUser", method = {RequestMethod.GET})
 	public String getFinancingByUser(@CurrentUser User user)
 	{
-		JSON response = new JSON();
+		var response = new JSONObject();
 		try
 		{
 			var f = financingService.getFinancingByUser(user.id);
-			List<JSON> t = new LinkedList<>();
+			List<JSONObject> t = new LinkedList<>();
 			for (var i : f)
 			{
 				var m = mortgageService.getMortgage(i.mid).toJSON();

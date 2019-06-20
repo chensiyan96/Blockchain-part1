@@ -5,15 +5,11 @@ import com.blockchain.service.MessageService;
 import com.blockchain.service.UserService;
 import com.blockchain.utils.Authorization;
 import com.blockchain.utils.CurrentUser;
-import com.blockchain.utils.JSON;
-import java.util.LinkedList;
-import java.util.List;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.LinkedList;
 
 @CrossOrigin
 @RestController
@@ -43,11 +39,11 @@ public class MessageController
 	@RequestMapping(value = "getMessages", method = {RequestMethod.GET})
 	public String getMessages(@CurrentUser User user)
 	{
-		JSON response = new JSON();
+		JSONObject response = new JSONObject();
 		try
 		{
 			var messages = messageService.getMessageRec(user.id);
-			List<JSON> lj = new LinkedList<>();
+			var lj = new LinkedList<JSONObject>();
 			for (var i : messages)
 			{
 				lj.add(i.toJson());
@@ -68,8 +64,8 @@ public class MessageController
 	public String updateMsgStatus(@CurrentUser User user, @RequestBody String request)
 	{
 
-		JSON req = new JSON(request);
-		JSON response = new JSON();
+		JSONObject req = new JSONObject(request);
+		JSONObject response = new JSONObject();
 		try
 		{
 			var mid = req.getInt("mid");

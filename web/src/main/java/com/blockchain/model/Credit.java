@@ -1,11 +1,12 @@
 package com.blockchain.model;
 
-import com.blockchain.utils.JSON;
 import com.blockchain.utils.MDateCmp;
+import org.json.JSONObject;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class Credit
+public class Credit implements ToJSON
 {
 	public int id;
 	public BigDecimal money;
@@ -19,9 +20,9 @@ public class Credit
 	//打借条的时候时0，还了是1，确认以及还了是2,超期未还是3
 	public int status;
 
-	public JSON toJSON()
+	public JSONObject toJSON()
 	{
-		JSON res = new JSON();
+		var res = new JSONObject();
 		res.put("cid", id);
 		res.put("money", money);
 		res.put("partyA", partyA);

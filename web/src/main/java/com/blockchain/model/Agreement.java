@@ -1,7 +1,8 @@
 package com.blockchain.model;
 
-import com.blockchain.utils.JSON;
 import com.blockchain.utils.MDateCmp;
+import org.json.JSONObject;
+
 import java.util.Date;
 
 public class Agreement
@@ -18,9 +19,9 @@ public class Agreement
 
 	public int creditId;
 
-	public JSON toJSON()
+	public JSONObject toJSON()
 	{
-		JSON res = new JSON();
+		var res = new JSONObject();
 		res.put("aid", id);
 		res.put("cid", creditId);
 		res.put("partyA", partyA);

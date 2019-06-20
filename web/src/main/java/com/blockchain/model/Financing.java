@@ -1,7 +1,8 @@
 package com.blockchain.model;
 
-import com.blockchain.utils.JSON;
 import com.blockchain.utils.MDateCmp;
+import org.json.JSONObject;
+
 import java.util.Date;
 
 public class Financing
@@ -16,9 +17,9 @@ public class Financing
 	public int mid;
 	public int aid;
 
-	public JSON toJSON()
+	public JSONObject toJSON()
 	{
-		JSON res = new JSON();
+		var res = new JSONObject();
 		res.put("fid", id);
 		res.put("mid", mid);
 		res.put("aid", aid);

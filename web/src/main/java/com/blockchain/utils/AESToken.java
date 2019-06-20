@@ -1,16 +1,18 @@
 package com.blockchain.utils;
 
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.Security;
-import java.util.Date;
+import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.json.JSONObject;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import org.apache.commons.codec.binary.Base64;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.Security;
+import java.util.Date;
 
 public class AESToken
 {
@@ -38,11 +40,6 @@ public class AESToken
 		}
 	}
 
-	public AESToken()
-	{
-	}
-
-
 	public static String encrypt(String toBeEncrypt)
 			throws InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException
 	{
@@ -62,11 +59,11 @@ public class AESToken
 	}
 
 
-	public static String getToken(JSON userinfo) throws Exception
+	public static String getToken(JSONObject userinfo) throws Exception
 	{
 		try
 		{
-			var bearer = new JSON();
+			var bearer = new JSONObject();
 			bearer.put("KEY", KEY);
 			bearer.put("User", userinfo);
 			Date now = new Date();
@@ -80,9 +77,9 @@ public class AESToken
 		}
 	}
 
-	public static JSON verifyToken(String token) throws Exception
+	public static JSONObject verifyToken(String token) throws Exception
 	{
-		var bearer = new JSON(decrypt(token));
+		var bearer = new JSONObject(decrypt(token));
 		var user = bearer.getJSONObject("User");
 		var time = MDateCmp.parse(bearer.getString("Lifetime"));
 		var now = new Date();
@@ -90,7 +87,7 @@ public class AESToken
 		{
 			throw new Exception("token过期");
 		}
-		return new JSON(user.toString());
+		return new JSONObject(user.toString());
 	}
 
 }

@@ -1,95 +1,76 @@
 package com.blockchain.controller;
 
-import com.blockchain.model.Roles;
 import com.blockchain.model.User;
-import com.blockchain.service.AccountService;
 import com.blockchain.service.UserService;
-import com.blockchain.utils.AESToken;
-import com.blockchain.utils.Authorization;
-import com.blockchain.utils.CurrentUser;
-import com.blockchain.utils.JSON;
-import com.blockchain.utils.MStringUtils;
+import com.blockchain.utils.*;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 
 @CrossOrigin
 @RestController
 @RequestMapping(value = "api/user")
 public class UserController
 {
-
 	@Autowired
 	private UserService userService;
-	@Autowired
-	private AccountService accountService;
 
-	@RequestMapping(value = "register", method = {RequestMethod.POST})
+	// 注册
+	@RequestMapping(value = "register", method = { RequestMethod.POST })
 	public String register(@RequestBody String request)
 	{
-		JSON req = new JSON(request);
-		JSON response = new JSON();
-		try
-		{
-			User user = new User();
-
-			MStringUtils.confirmEmail(req.getString("email"));
-			user.email = req.getString("email");
-
-			user.normalizedEmail = MStringUtils.normalize(req.getString("email"));
-			user.companyName = req.getString("name");
-
-			MStringUtils.confirmPsw(req.getString("password"));
-			user.passwordHash = AESToken.encrypt(req.getString("password"));
-
-			user.role = Roles.valueOf(req.getString("role"));
-			user.profile = req.getString("profile");
-			if (userService.isEmailExist(user.email))
-			{
-				throw new Exception("邮箱已被注册");
-			}
-			userService.register(user);
-			var id = user.id;
-			accountService.create(id);
-			response.put("status", 1);
-			response.put("msg", "Success");
-		} catch (Exception e)
-		{
-			response.put("status", 0);
-			response.put("msg", e.getMessage());
+		var req = new JSONObject(request);
+		var email = req.getString("email").toUpperCase();
+		if (email.isEmpty() || !email.contains("@")) {
+			return JSONUtils.failResponse("邮箱无效");
 		}
-		return response.toString();
+		if (userService.isEmailExist(email)) {
+			return JSONUtils.failResponse("邮箱已被注册");
+		}
+		var password = req.getString("password");
+		if(password.isEmpty()) {
+			return JSONUtils.failResponse("密码不能为空");
+		}
+
+		User user = new User();
+		user.email = email;
+		user.companyName = req.getString("companyName");
+
+		try	{
+			user.passwordHash = AESToken.encrypt(password);
+		} catch (InvalidKeyException e) {
+			return JSONUtils.failResponse(e.getMessage());
+		} catch (InvalidAlgorithmParameterException e) {
+			return JSONUtils.failResponse(e.getMessage());
+		} catch (IllegalBlockSizeException e) {
+			return JSONUtils.failResponse(e.getMessage());
+		} catch (BadPaddingException e) {
+			return JSONUtils.failResponse(e.getMessage());
+		}
+
+		user.role = User.Roles.valueOf(req.getString("role"));
+		user.profile = req.getString("profile");
+
+		if (userService.register(user) == 0) {
+			return JSONUtils.failResponse("注册失败");
+		}
+
+		// todo 区块链里创建账户
+
+		return JSONUtils.successResponse();
 	}
 
-	@Authorization
-	@RequestMapping(value = "getUserInfo", method = {RequestMethod.GET})
-	public String getUserInfo(@CurrentUser User u)
-	{
-		var response = new JSON();
-		try
-		{
-
-			var user = u.toJSON();
-			response.put("status", 1);
-			response.put("msg", "Success");
-			user.put("profile", u.profile);
-			response.put("user", user);
-		} catch (Exception e)
-		{
-			response.put("status", 0);
-			response.put("msg", e.getMessage());
-		}
-		return response.toString();
-	}
-
-	@RequestMapping(value = "login", method = {RequestMethod.POST})
+	// 登录
+	@RequestMapping(value = "login", method = { RequestMethod.POST })
 	public String login(@RequestBody String request)
 	{
-		var req = new JSON(request);
-		var res = new JSON();
+		var req = new JSONObject(request);
+		var res = new JSONObject();
 		try
 		{
 			var id = userService.signIn(req.getString("email"), req.getString("password"));
@@ -113,11 +94,34 @@ public class UserController
 	}
 
 	@Authorization
+	@RequestMapping(value = "getUserInfo", method = {RequestMethod.GET})
+	public String getUserInfo(@CurrentUser User u)
+	{
+		var response = new JSONObject();
+		try
+		{
+
+			var user = u.toJSON();
+			response.put("status", 1);
+			response.put("msg", "Success");
+			user.put("profile", u.profile);
+			response.put("user", user);
+		} catch (Exception e)
+		{
+			response.put("status", 0);
+			response.put("msg", e.getMessage());
+		}
+		return response.toString();
+	}
+
+
+
+	@Authorization
 	@RequestMapping(value = "updateUserInfo", method = {RequestMethod.POST})
 	public String updateUserInfo(@CurrentUser User user, @RequestBody String request)
 	{
-		var req = new JSON(request);
-		var response = new JSON();
+		var req = new JSONObject(request);
+		var response = new JSONObject();
 		try
 		{
 			var cpsw = req.getString("confirmPassword");
@@ -144,8 +148,8 @@ public class UserController
 	@RequestMapping(value = "updatePassword", method = {RequestMethod.POST})
 	public String updatePassword(@CurrentUser User user, @RequestBody String request)
 	{
-		var req = new JSON(request);
-		var response = new JSON();
+		var req = new JSONObject(request);
+		var response = new JSONObject();
 		try
 		{
 			var cpsw = req.getString("confirmPassword");
