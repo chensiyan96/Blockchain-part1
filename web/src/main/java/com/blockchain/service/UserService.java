@@ -15,26 +15,33 @@ public class UserService
 
 	public long insertUser(User user)
 	{
-		return user.id = userMapper.insertUser(user);
+		return user.db.id = userMapper.insertUser(user.db);
 	}
 
-	public boolean isEmailExist(String email)
+	public User getUserByID(long id)
 	{
-		return userMapper.getUserByEmail(email) != null;
-	}
-
-	public User getUserByID(long userID)
-	{
-		return userMapper.getUserById(userID);
+		var db = userMapper.getUserById(id);
+		return db == null ? null : new User(db);
 	}
 
 	public User getUserByEmail(String email)
 	{
-		return userMapper.getUserByEmail(email);
+		var db = userMapper.getUserByEmail(email);
+		return db == null ? null : new User(db);
 	}
 
 	public void updateUser(User user)
 	{
-		userMapper.updateUserInfo(user.id, user.name, user.passwordHash, user.additional);
+		userMapper.updateUserInfo(user.db.id, user.db.name, user.db.passwordHash, user.db.additional);
+	}
+
+	public User[] getAllMoneyGivers()
+	{
+		var dbs = userMapper.getAllMoneyGivers();
+		var users = new User[dbs.length];
+		for (int i = 0; i < dbs.length; i++) {
+			users[i] = new User(dbs[i]);
+		}
+		return users;
 	}
 }

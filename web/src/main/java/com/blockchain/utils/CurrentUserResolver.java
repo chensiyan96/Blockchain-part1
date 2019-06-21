@@ -28,7 +28,7 @@ public class CurrentUserResolver implements HandlerMethodArgumentResolver
 	@Override
 	public Object resolveArgument(MethodParameter methodParameter,
 			ModelAndViewContainer modelAndViewContainer, NativeWebRequest nativeWebRequest,
-			WebDataBinderFactory webDataBinderFactory) throws Exception
+			WebDataBinderFactory webDataBinderFactory) throws MissingServletRequestPartException
 	{
 		//从request 中获取user信息
 		User userDTO = (User) nativeWebRequest

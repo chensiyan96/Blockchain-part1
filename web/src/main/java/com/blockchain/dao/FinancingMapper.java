@@ -1,8 +1,6 @@
 package com.blockchain.dao;
 
 import com.blockchain.model.Financing;
-import com.blockchain.model.FinancingStatus;
-import java.util.List;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -10,18 +8,26 @@ import org.springframework.stereotype.Repository;
 @Mapper
 public interface FinancingMapper
 {
-
 	@Options(useGeneratedKeys = true)
-	@Insert("insert into Financing (Terms,CreateTime,PartyA,PartyB,Status,Mid,Aid) "
-			+ "values(#{terms},#{createTime},#{partyA},#{partyB},#{status},#{mid},#{aid})")
-	int insertFinancing(Financing c);
-
+	@Insert("insert into Financing(Id,Sid,Cid,Mid,CreateTime,State) "
+			+ "values(#{id},#{sid},#{cid},#{mid},#{createTime},#{state})")
+	long insertFinancing(Financing.DataBase fin);
 
 	@Select("select * from Financing where Id = #{id}")
-	Financing getFinancing(@Param("id") int id);
-	@Select("select * from Financing where PartyA = #{id} || PartyB = #{id}")
-	List<Financing> getFinancingByUser(@Param("id") int uid);
+	Financing.DataBase getFinancingById(@Param("id") long id);
 
-	@Update("update Financing set Status = #{status} where Id = #{id}")
-	void updateStatus(@Param("id") int id, @Param("status") FinancingStatus status);
+	@Select("select * from Financing where Sid = #{sid}")
+	Financing.DataBase[] getFinancingBySupplier(@Param("sid") long sid);
+
+	@Select("select * from Financing where Cid = #{cid}")
+	Financing.DataBase[] getFinancingByCoreBusiness(@Param("cid") long cid);
+
+	@Select("select * from Financing where Mid = #{mid}")
+	Financing.DataBase[] getFinancingByMoneyGiver(@Param("mid") long mid);
+
+	@Update("update Financing set State = #{state} where Id = #{id}")
+	void updateFinancingState(@Param("id") long id, @Param("id") byte state);
+
+	@Delete("delete from Financing where Id = #{id}")
+	void deleteFinancingById(@Param("id") long id);
 }

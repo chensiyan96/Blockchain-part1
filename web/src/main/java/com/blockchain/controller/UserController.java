@@ -34,7 +34,7 @@ public class UserController
 		if (email.isEmpty() || !email.contains("@")) {
 			return JSONUtils.failResponse("邮箱无效");
 		}
-		if (userService.isEmailExist(email)) {
+		if (userService.getUserByEmail(email) != null) {
 			return JSONUtils.failResponse("邮箱已被注册");
 		}
 		var password = req.getString("password");
@@ -48,21 +48,21 @@ public class UserController
 		if (err_msg != null) {
 			return JSONUtils.failResponse(err_msg);
 		}
-		user.email = email;
-		user.name = req.getString("name");
-		user.role = User.Roles.valueOf(req.getString("role"));
+		user.db.email = email;
+		user.db.name = req.getString("name");
+		user.db.role = User.Roles.valueOf(req.getString("role"));
 		if (req.has("additional")) {
-			user.additional = req.getString("additional");
+			user.db.additional = req.getString("additional");
 		}
 
 		// 3.根据用户身份添加profile
-		switch (user.role)
+		switch (user.db.role)
 		{
-			case CoreBusiness:
-				user.profile = new CoreBusinessProfile();
-				break;
 			case Supplier:
 				user.profile = new SupplierProfile();
+				break;
+			case CoreBusiness:
+				user.profile = new CoreBusinessProfile();
 				break;
 			case MoneyGiver:
 				user.profile = new MoneyGiverProfile();
@@ -78,7 +78,7 @@ public class UserController
 		}
 
 		// 5.在区块链里创建账户
-		accountService.createAccount(user.id);
+		accountService.createAccount(user.db.id);
 
 		// 6.返回成功提示
 		return JSONUtils.successResponse();
@@ -127,10 +127,10 @@ public class UserController
 		// 2.在数据库中更新
 		var u = req.getJSONObject("newUser");
 		if (u.has("name")) {
-			user.name = u.getString("name");
+			user.db.name = u.getString("name");
 		}
 		if (u.has("additional")) {
-			user.additional = u.getString("additional");
+			user.db.additional = u.getString("additional");
 		}
 		userService.updateUser(user);
 
@@ -156,5 +156,12 @@ public class UserController
 
 		// 3.返回成功提示
 		return JSONUtils.successResponse();
+	}
+
+	// 获取所有资金方信息
+	@RequestMapping(value = "getAllMoneyGivers", method = { RequestMethod.GET })
+	public String getAllMoneyGivers()
+	{
+		return JSONUtils.successResponse("data", JSONUtils.arrayToJSONs(userService.getAllMoneyGivers()));
 	}
 }

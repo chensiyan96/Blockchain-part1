@@ -23,7 +23,7 @@ public class AccountController
 	@RequestMapping(value = "getMoney", method = { RequestMethod.GET })
 	public String getMoney(@CurrentUser User user)
 	{
-		return JSONUtils.successResponse("money", accountService.queryMoney(user.id));
+		return JSONUtils.successResponse("money", accountService.queryMoney(user.db.id));
 	}
 
 	@Authorization
@@ -32,7 +32,7 @@ public class AccountController
 	{
         var req = new JSONObject(request);
         var money = new BigDecimal(req.getString("money"));
-	    if (accountService.investMoney(user.id, money)) {
+	    if (accountService.investMoney(user.db.id, money)) {
             return JSONUtils.successResponse();
         }
         else {
@@ -46,7 +46,7 @@ public class AccountController
 	{
         var req = new JSONObject(request);
         var money = new BigDecimal(req.getString("money"));
-        if (accountService.withdrawMoney(user.id, money)) {
+        if (accountService.withdrawMoney(user.db.id, money)) {
             return JSONUtils.successResponse();
         }
         else {

@@ -85,22 +85,6 @@ CREATE TABLE `Mortgages`(
 
 )ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
--- 融资 其实和合同没什么区别？
-CREATE TABLE `Financing`(
-    `Id` INT NOT NULL auto_increment,
-    `Terms` longtext NULL,
-    `CreateTime` DATETIME NULL,
-    `PartyA` INT NULL,
-    `PartyB` INT NULL,
-    `Status` varchar(256) NULL,
-    `Mid` INT NOT NULL,
-    `Aid` INT NOT NULL,
-    PRIMARY KEY (`Id`),
-    CONSTRAINT `FK_Financing_Users_PartyA` FOREIGN KEY (`PartyA`) REFERENCES `Users` (`Id`) ON DELETE CASCADE,
-    CONSTRAINT `FK_Financing_Users_PartyB` FOREIGN KEY (`PartyB`) REFERENCES `Users` (`Id`) ON DELETE CASCADE,
-    CONSTRAINT `FK_Financing_Mortgages_CreditId` FOREIGN KEY (`MId`) REFERENCES `Mortgages` (`Id`) ON DELETE CASCADE
-)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
-
 CREATE TABLE `Message`(
     `Id` INT NOT NULL auto_increment,
     `Msg` longtext NULL,

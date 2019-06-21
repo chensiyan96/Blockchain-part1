@@ -13,38 +13,53 @@ public class User implements ToJSON
 {
     public enum Roles
     {
-        CoreBusiness,
         Supplier,
+        CoreBusiness,
         MoneyGiver,
         Admin
     }
 
-	public long id;
-	public String email;
-	public String name;
-	public String passwordHash;
-	public Roles role;
+    public static class DataBase
+    {
+        public long id;
+        public String email;
+        public String name;
+        public String passwordHash;
+        public Roles role;
+        public String additional;
+    }
+
+	public DataBase db;
 	public Profile profile;
-	public String additional;
+
+	public User()
+    {
+        db = new DataBase();
+    }
+
+    public User(DataBase db)
+    {
+        this.db = db;
+    }
 
 	@Override
 	public JSONObject toJSON()
 	{
-		var user = new JSONObject();
-		user.put("email", email);
-		user.put("name", name);
-		user.put("role", role);
-		if (profile != null) {
-            user.put("profile", profile.toJSON());
+		var res = new JSONObject();
+		res.put("email", db.email);
+		res.put("name", db.name);
+		res.put("role", db.role);
+        res.put("additional", db.additional);
+        if (profile != null) {
+            res.put("profile", profile.toJSON());
         }
-        user.put("additional", additional);
-		return user;
+		return res;
 	}
 
 	public String hashAndSetPassword(String password)
     {
         try	{
-            passwordHash = AESToken.encrypt(password);
+            db.passwordHash = AESToken.encrypt(password);
         } catch (InvalidKeyException e) {
             return e.getMessage();
         } catch (InvalidAlgorithmParameterException e) {
@@ -61,7 +76,7 @@ public class User implements ToJSON
     {
         try	{
             var passwordHash = AESToken.encrypt(password);
-            if (this.passwordHash.equals(passwordHash)) {
+            if (this.db.passwordHash.equals(passwordHash)) {
                 return null;
             }
         } catch (InvalidKeyException e) {

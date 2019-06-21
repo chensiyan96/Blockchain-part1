@@ -40,4 +40,13 @@ public class JSONUtils
 		}
 		return res;
 	}
+
+	public static <T extends ToJSON> JSONObject[] arrayToJSONs(T[] ts)
+	{
+		var res = new JSONObject[ts.length];
+		for (int i = 0; i< ts.length; i++) {
+			res[i] = ts[i].toJSON();
+		}
+		return res;
+	}
 }
