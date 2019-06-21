@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Mapper
 public interface AccountMapper
 {
-@Insert("insert into UserAccounts (UserId,Money) "
+	@Insert("insert into UserAccounts (UserId,Money) "
 			+ "values(#{uid},0)")
 	void insertUserAccount(@Param("uid")int uid);
 

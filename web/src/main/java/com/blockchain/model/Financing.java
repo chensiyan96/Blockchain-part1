@@ -3,6 +3,7 @@ package com.blockchain.model;
 import com.blockchain.utils.ToJSON;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 
 public class Financing implements ToJSON
@@ -13,8 +14,10 @@ public class Financing implements ToJSON
 		public long sid; // 供应商外键
 		public long cid; // 核心企业外键
 		public long mid; // 资金方外键
+		public long pid; // 产品外键
+		public BigDecimal money;
 		public Date createTime;
-		public byte state;
+		public byte status;
 	}
 
 	public DataBase db;
@@ -36,6 +39,27 @@ public class Financing implements ToJSON
 	public JSONObject toJSON()
 	{
 		var res = new JSONObject();
+		res.put("money", db.money);
+		res.put("createTime", db.createTime);
+		res.put("status", db.status);
+		if (supplier != null) {
+			res.put("Supplier", supplier.toJSON());
+		}
+		else {
+			res.put("sid", db.sid);
+		}
+		if (coreBusiness != null) {
+			res.put("CoreBusiness", coreBusiness.toJSON());
+		}
+		else {
+			res.put("sid", db.cid);
+		}
+		if (moneyGiver != null) {
+			res.put("MoneyGiver", moneyGiver.toJSON());
+		}
+		else {
+			res.put("sid", db.mid);
+		}
 		return res;
 	}
 

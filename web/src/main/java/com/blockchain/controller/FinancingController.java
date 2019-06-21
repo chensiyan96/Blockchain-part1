@@ -2,6 +2,7 @@ package com.blockchain.controller;
 
 import com.blockchain.model.Financing;
 import com.blockchain.model.User;
+import com.blockchain.service.AccountService;
 import com.blockchain.service.FinancingService;
 import com.blockchain.service.UserService;
 import com.blockchain.utils.Authorization;
@@ -24,6 +25,8 @@ public class FinancingController
 	private UserService userService;
 	@Autowired
 	private FinancingService financingService;
+    @Autowired
+    private AccountService accountService;
 
     // 新建融资申请
 	@Authorization
@@ -57,144 +60,168 @@ public class FinancingController
         fin.setSupplier(us);
         fin.setCoreBusiness(uc);
         fin.setMoneyGiver(um);
+        fin.db.pid = req.getLong("product_id"); //todo：检查产品是否存在
+        fin.db.money = req.getBigDecimal("adopt_money");
         fin.db.createTime = new Date(System.currentTimeMillis());
-        fin.db.state = 0;
+        fin.db.status = 0;
 
-        // 4.在数据库中添加字段
+        // 4.如果下两步设置了自动通过，则直接通过
+        // todo
+
+        // 5.在数据库中添加字段
         if (financingService.insertFinancing(fin) == 0) {
             return JSONUtils.failResponse("创建失败");
         }
+
+        // 6.返回成功提示
+        return JSONUtils.successResponse();
+	}
+
+    // 授信（第一步）
+    @Authorization
+    @RequestMapping(value = "credit", method = { RequestMethod.POST })
+    public String credit(@CurrentUser User user, @RequestBody String request)
+    {
+        // 1.检查用户身份
+        if (user.db.role != User.Roles.MoneyGiver) {
+            return JSONUtils.failResponse("必须由资金方授信");
+        }
+
+        // 2.检查融资申请状态
+        var req = new JSONObject(request);
+        var fin = financingService.getFinancingByID(req.getLong("id"));
+        if (fin == null || fin.db.mid != user.db.id) {
+            return JSONUtils.failResponse("您不存在该申请");
+        }
+        if (fin.db.status != 0) {
+            return JSONUtils.failResponse("本申请不该进行此操作");
+        }
+
+        // 3.更新融资申请状态
+        // todo： 如果下一步设置了自动通过，则直接通过
+        fin.db.status = 1;
+        financingService.updateFinancingStatus(fin);
+
+        // 4.返回成功提示
+        return JSONUtils.successResponse();
+    }
+
+	// 确权（第二步）
+	@Authorization
+	@RequestMapping(value = "confirm", method = { RequestMethod.POST })
+	public String confirm(@CurrentUser User user, @RequestBody String request)
+    {
+        // 1.检查用户身份
+        if (user.db.role != User.Roles.CoreBusiness) {
+            return JSONUtils.failResponse("必须由核心企业确权");
+        }
+
+        // 2.检查融资申请状态
+        var req = new JSONObject(request);
+        var fin = financingService.getFinancingByID(req.getLong("id"));
+        if (fin == null || fin.db.cid != user.db.id) {
+            return JSONUtils.failResponse("您不存在该申请");
+        }
+        if (fin.db.status != 1) {
+            return JSONUtils.failResponse("本申请不该进行此操作");
+        }
+
+        // 3.更新融资申请状态
+        fin.db.status = 2;
+        financingService.updateFinancingStatus(fin);
+
+        // 4.返回成功提示
+        return JSONUtils.successResponse();
+    }
+
+    // 放款（第三步）
+	@Authorization
+	@RequestMapping(value = "pay", method = { RequestMethod.POST })
+	public String pay(@CurrentUser User user, @RequestBody String request)
+	{
+        // 1.检查用户身份
+        if (user.db.role != User.Roles.MoneyGiver) {
+            return JSONUtils.failResponse("必须由资金方放款");
+        }
+
+        // 2.检查融资申请状态
+        var req = new JSONObject(request);
+        var fin = financingService.getFinancingByID(req.getLong("id"));
+        if (fin == null || fin.db.mid != user.db.id) {
+            return JSONUtils.failResponse("您不存在该申请");
+        }
+        if (fin.db.status != 2) {
+            return JSONUtils.failResponse("本申请不该进行此操作");
+        }
+
+        // 3.放款
+        if (!accountService.transferMoney(fin.db.sid, fin.db.mid, fin.db.money)) {
+            return JSONUtils.failResponse("账户余额不足");
+        }
+
+        // 4.更新融资申请状态
+        fin.db.status = 3;
+        financingService.updateFinancingStatus(fin);
 
         // 5.返回成功提示
         return JSONUtils.successResponse();
 	}
 
-//	@Authorization
-//	@RequestMapping(value = "confirm", method = {RequestMethod.POST})
-//	public String confirm(@CurrentUser User user, @RequestBody String request)
-//	{
-//		var req = new JSONObject(request);
-//		var response = new JSONObject();
-//		try
-//		{
-//			var fid = req.getInt("fid");
-//			var status = FinancingStatus.values()[req.getInt("status")];
-//			var f = financingService.getFinancing(fid);
-//
-//			if (!status.equals(f.status))
-//			{
-//				throw new Exception("参数错误");
-//			}
-//
-//			if (status.equals(FinancingStatus.init) && user.id == f.partyA)
-//			{
-//				financingService.updateStatus(MStatusUtils.getNextFinancingStatus(status), fid);
-//			} else if (status.equals(FinancingStatus.confirminfo))
-//			{
-//				var tmp = agreementService.getAgreement(f.aid);
-//				if (user.id == tmp.partyA)
-//				{
-//					financingService.updateStatus(MStatusUtils.getNextFinancingStatus(status), fid);
-//				} else
-//				{
-//					throw new Exception("参数错误");
-//				}
-//
-//			} else if (status.equals(FinancingStatus.paid) && user.id == f.partyB)
-//			{
-//				financingService.updateStatus(MStatusUtils.getNextFinancingStatus(status), fid);
-//			} else
-//			{
-//				throw new Exception("参数错误");
-//			}
-//			response.put("status", 1);
-//			response.put("msg", "Success");
-//
-//		} catch (Exception e)
-//		{
-//			response.put("status", 0);
-//			response.put("msg", e.getMessage());
-//		}
-//		return response.toString();
-//	}
-//
-//	@Authorization
-//	@RequestMapping(value = "pay", method = {RequestMethod.POST})
-//	public String pay(@CurrentUser User user, @RequestBody String request)
-//	{
-//		var req = new JSONObject(request);
-//		var response = new JSONObject();
-//		try
-//		{
-//			var fid = req.getInt("fid");
-//			var money = req.getBigDecimal("money");
-//			var status = FinancingStatus.values()[req.getInt("status")];
-//			var f = financingService.getFinancing(fid);
-//
-//			if (status != FinancingStatus.cbConfirm || user.id != f.partyA)
-//			{
-//				throw new Exception("参数错误");
-//			}
-//
-//			paymentService.transfer(f.partyA, f.partyB, money);
-//			financingService.updateStatus(MStatusUtils.getNextFinancingStatus(status), fid);
-//
-//			response.put("status", 1);
-//			response.put("msg", "Success");
-//		} catch (Exception e)
-//		{
-//			response.put("status", 0);
-//			response.put("msg", e.getMessage());
-//		}
-//		return response.toString();
-//	}
-//
-//	@Authorization
-//	@RequestMapping(value = "getFinancing", method = {RequestMethod.GET})
-//	public String getFinancing(@CurrentUser User user, @RequestParam("fid") int fid)
-//	{
-//		var response = new JSONObject();
-//		try
-//		{
-//			var f = financingService.getFinancing(fid);
-//			var m = mortgageService.getMortgage(f.mid);
-//			var fi = f.toJSON();
-//			fi.put("mortgage", m.toJSON());
-//			response.put("status", 1);
-//			response.put("msg", "Success");
-//			response.put("financing", fi);
-//		} catch (Exception e)
-//		{
-//			response.put("status", 0);
-//			response.put("msg", e.getMessage());
-//		}
-//		return response.toString();
-//	}
-//
-//	@Authorization
-//	@RequestMapping(value = "getFinancingByUser", method = {RequestMethod.GET})
-//	public String getFinancingByUser(@CurrentUser User user)
-//	{
-//		var response = new JSONObject();
-//		try
-//		{
-//			var f = financingService.getFinancingByUser(user.id);
-//			List<JSONObject> t = new LinkedList<>();
-//			for (var i : f)
-//			{
-//				var m = mortgageService.getMortgage(i.mid).toJSON();
-//				var tmp = i.toJSON();
-//				tmp.put("mortgage", m);
-//				t.add(tmp);
-//			}
-//			response.put("status", 1);
-//			response.put("msg", "Success");
-//			response.put("financing", t);
-//		} catch (Exception e)
-//		{
-//			response.put("status", 0);
-//			response.put("msg", e.getMessage());
-//		}
-//		return response.toString();
-//	}
+    // 还款（第四步）
+    @Authorization
+    @RequestMapping(value = "repay", method = { RequestMethod.POST })
+    public String repay(@CurrentUser User user, @RequestBody String request)
+    {
+        // 1.检查用户身份
+        if (user.db.role != User.Roles.Supplier) {
+            return JSONUtils.failResponse("必须由供应商放款");
+        }
+
+        // 2.检查融资申请状态
+        var req = new JSONObject(request);
+        var fin = financingService.getFinancingByID(req.getLong("id"));
+        if (fin == null || fin.db.sid != user.db.id) {
+            return JSONUtils.failResponse("您不存在该申请");
+        }
+        if (fin.db.status != 3) {
+            return JSONUtils.failResponse("本申请不该进行此操作");
+        }
+
+        // 3.还款
+        if (!accountService.transferMoney(fin.db.mid, fin.db.sid, fin.db.money)) {
+            return JSONUtils.failResponse("账户余额不足");
+        }
+
+        // 4.更新融资申请状态
+        fin.db.status = 4;
+        financingService.updateFinancingStatus(fin);
+
+        // 5.返回成功提示
+        return JSONUtils.successResponse();
+    }
+
+    // 获取当前登录的用户处于[参数status]状态下的所有融资申请
+	@Authorization
+	@RequestMapping(value = "getFinancingByUserAndStatus", method = { RequestMethod.GET })
+	public String getFinancingByUserAndStatus(@CurrentUser User user, @RequestBody String request)
+	{
+        var req = new JSONObject(request);
+	    var status = (byte) req.getInt("status");
+        Financing[] fins;
+        switch (user.db.role)
+        {
+            case Supplier:
+                fins = financingService.getFinancingBySidAndStatus(user.db.id, status);
+                break;
+            case CoreBusiness:
+                fins = financingService.getFinancingByCidAndStatus(user.db.id, status);
+                break;
+            case MoneyGiver:
+                fins = financingService.getFinancingByMidAndStatus(user.db.id, status);
+                break;
+            default:
+                return JSONUtils.failResponse("管理员没有融资申请");
+        }
+        return JSONUtils.successResponse("data", JSONUtils.arrayToJSONs(fins));
+	}
 }
