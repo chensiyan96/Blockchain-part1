@@ -38,7 +38,7 @@
       <ref bean="stringHttpMessageConverter"/>
     </mvc:message-converters>
     <mvc:argument-resolvers>
-      <bean class="com.blockchain.utils.CurrentUserMethodArgumentResolver"></bean>
+      <bean class="com.blockchain.utils.CurrentUserResolver"></bean>
     </mvc:argument-resolvers>
   </mvc:annotation-driven>
 

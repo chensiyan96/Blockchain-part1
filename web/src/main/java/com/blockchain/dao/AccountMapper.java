@@ -1,15 +1,15 @@
 package com.blockchain.dao;
 
-import java.math.BigDecimal;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
+
+import java.math.BigDecimal;
 
 @Repository
 @Mapper
 public interface AccountMapper
 {
-
-	@Insert("insert into UserAccounts (UserId,Money) "
+@Insert("insert into UserAccounts (UserId,Money) "
 			+ "values(#{uid},0)")
 	void insertUserAccount(@Param("uid")int uid);
 

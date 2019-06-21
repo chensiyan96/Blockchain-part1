@@ -1,6 +1,5 @@
 package com.blockchain.utils;
 
-import com.blockchain.model.ToJSON;
 import org.json.JSONObject;
 
 import java.util.ArrayList;

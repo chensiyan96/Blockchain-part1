@@ -1,13 +1,14 @@
 package com.blockchain.utils;
 
 import com.blockchain.service.UserService;
-import java.lang.reflect.Method;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
 
 public class TokenInterceptor implements HandlerInterceptor
 {
@@ -34,14 +35,14 @@ public class TokenInterceptor implements HandlerInterceptor
 		{
 			//获取请求上传的token信息
 			String token = httpServletRequest.getHeader("token");
-			var user = AESToken.verifyToken(token);
+			var user_token = AESToken.verifyToken(token);
 
 			//如果token合法
-			if (user != null)
+			if (user_token != null)
 			{
-				var u = userService.getUserInfoByEmail(user.getString("email"));
+				var user = userService.getUserByEmail(user_token.getString("email").toUpperCase());
 				//将user 添加到 request中，以便后续操作获取user
-				httpServletRequest.setAttribute("user", u);
+				httpServletRequest.setAttribute("user", user);
 				return true;
 			} else
 			{

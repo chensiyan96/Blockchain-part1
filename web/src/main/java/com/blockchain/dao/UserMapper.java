@@ -9,30 +9,19 @@ import org.springframework.stereotype.Repository;
 public interface UserMapper
 {
 	@Options(useGeneratedKeys = true)
-	@Insert("INSERT INTO Users "
-			+ "(Email,CompanyName,PasswordHash,Role,Profile) "
-			+ "VALUES (#{email},#{companyName},#{passwordHash},#{role},#{profile})")
-	int insertUser(User user);
+	@Insert("INSERT INTO User "
+			+ "(Email,Name,PasswordHash,Role,Additional) "
+			+ "VALUES (#{email},#{name},#{passwordHash},#{role},#{additional})")
+	long insertUser(User user);
 
-	@Select(" SELECT * FROM users WHERE Id = #{id} ")
-	User getUserById(@Param("id") int id);
+	@Select(" SELECT * FROM User WHERE Id = #{id} ")
+	User getUserById(@Param("id") long id);
 
-	@Select(" SELECT * FROM users WHERE Email = #{email} ")
+	@Select(" SELECT * FROM User WHERE Email = #{email} ")
 	User getUserByEmail(@Param("email") String email);
 
-	@Update(" UPDATE Users " +
-			" SET CompanyName = #{name}, Profile = #{profile}" +
+	@Update(" UPDATE User " +
+			" SET Name = #{name}, PasswordHash = #{psw_hash}, Additional = #{additional}" +
 			" WHERE Id = #{id} ")
-	void updateUserInfo(@Param("id") int id, @Param("name") String name, @Param("profile") String profile);
-
-	@Update(" UPDATE Users "
-			+ "SET PasswordHash = #{password} "
-			+ "WHERE Id = #{id} ")
-	void updatePassword(@Param("id") int id, @Param("password") String password);
-
-	@Select(" SELECT count(*) from Users where email = #{email}")
-	int isEmailExist(@Param("email") String email);
-
-	@Select(" SELECT Id from Users where email = #{email} and PasswordHash = #{psw}")
-	int verifyUser(@Param("email") String email, @Param("psw") String psw);
+	void updateUserInfo(@Param("id") long id, @Param("name") String name, @Param("psw_hash") String psw_hash, @Param("additional") String additional);
 }

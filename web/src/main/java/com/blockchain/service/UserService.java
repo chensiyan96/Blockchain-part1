@@ -10,42 +10,31 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UserService
 {
-
 	@Autowired
 	private UserMapper userMapper;
 
-	public int register(User user)
+	public long insertUser(User user)
 	{
-		return userMapper.insertUser(user);
+		return user.id = userMapper.insertUser(user);
 	}
 
 	public boolean isEmailExist(String email)
 	{
-		return userMapper.isEmailExist(email) > 0;
+		return userMapper.getUserByEmail(email) != null;
 	}
 
-	public int signIn(String email, String psw)
-	{
-		return userMapper.verifyUser(email, psw);
-	}
-
-	public User getUserInfoByID(int userID) throws RuntimeException
+	public User getUserByID(long userID)
 	{
 		return userMapper.getUserById(userID);
 	}
 
-	public User getUserInfoByEmail(String email) throws RuntimeException
+	public User getUserByEmail(String email)
 	{
 		return userMapper.getUserByEmail(email);
 	}
 
-	public void updateUserinfo(int id, String name, String profile)
+	public void updateUser(User user)
 	{
-		userMapper.updateUserInfo(id, name, profile);
-	}
-
-	public void updatePassword(int id, String psw)
-	{
-		userMapper.updatePassword(id, psw);
+		userMapper.updateUserInfo(user.id, user.name, user.passwordHash, user.additional);
 	}
 }
