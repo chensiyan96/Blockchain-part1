@@ -1,0 +1,130 @@
+package com.blockchain.controller;
+
+import com.blockchain.model.Order;
+import com.blockchain.model.User;
+import com.blockchain.service.AccountService;
+import com.blockchain.service.OrderService;
+import com.blockchain.service.UserService;
+import com.blockchain.utils.Authorization;
+import com.blockchain.utils.CurrentUser;
+import com.blockchain.utils.JSONUtils;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.math.BigDecimal;
+
+@RestController
+@RequestMapping(value = "api/order")
+public class OrderController
+{
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private AccountService accountService;
+
+    // 新建订单
+    @Authorization
+    @RequestMapping(value = "create", method = { RequestMethod.POST })
+    public String create(@CurrentUser User uc, @RequestBody String request)
+    {
+        // 1.检查用户身份
+        if (uc.db.role != User.Roles.CoreBusiness) {
+            return JSONUtils.failResponse("必须由核心企业提交订单");
+        }
+
+        // 2.检查申请的另外一方是否存在和身份是否正确
+        var req = new JSONObject(request);
+        User us = userService.getUserByEmail(req.getString("Supplier_email").toUpperCase());
+        if (us == null) {
+            return JSONUtils.failResponse("供应商email不存在");
+        }
+        if (us.db.role !=  User.Roles.Supplier) {
+            return JSONUtils.failResponse("供应商email身份不正确");
+        }
+
+        // 3.检查金额
+        var money = req.getBigDecimal("money");
+        if (money.compareTo(BigDecimal.ZERO) <= 0) {
+            return JSONUtils.failResponse("金额必须大于0");
+        }
+
+        // 4.创建order对象
+        var order = new Order();
+        order.setSupplier(us);
+        order.setCoreBusiness(uc);
+        order.db.money = money;
+        //fin.db.createTime = ;
+        order.db.status = 0;
+
+        // 5.在数据库中添加字段
+        if (orderService.insertOrder(order) == 0) {
+            return JSONUtils.failResponse("创建失败");
+        }
+
+        // 6.返回成功提示
+        return JSONUtils.successResponse();
+    }
+
+    // 付款
+    @Authorization
+    @RequestMapping(value = "pay", method = { RequestMethod.POST })
+    public String pay(@CurrentUser User user, @RequestBody String request)
+    {
+        // 1.检查用户身份
+        if (user.db.role != User.Roles.CoreBusiness) {
+            return JSONUtils.failResponse("必须由核心企业付款");
+        }
+
+        // 2.检查融资申请状态
+        var req = new JSONObject(request);
+        var order = orderService.getOrderByID(req.getLong("id"));
+        if (order == null || order.db.cid != user.db.id) {
+            return JSONUtils.failResponse("您不存在该申请");
+        }
+        if (order.db.status != 2) {
+            return JSONUtils.failResponse("本申请不该进行此操作");
+        }
+
+        // 3.付款
+        if (!accountService.transferMoney(order.db.sid, order.db.cid, order.db.money)) {
+            return JSONUtils.failResponse("账户余额不足");
+        }
+
+        // 4.更新订单状态
+        order.db.status = 1;
+        orderService.updateOrderStatus(order);
+
+        // 5.返回成功提示
+        return JSONUtils.successResponse();
+    }
+
+    // 获取当前登录的用户处于[参数status]状态下的所有订单
+    @Authorization
+    @RequestMapping(value = "getOrderByUserAndStatus", method = { RequestMethod.GET })
+    public String getOrderByUserAndStatus(@CurrentUser User user, @RequestBody String request)
+    {
+        var req = new JSONObject(request);
+        var status = (byte) req.getInt("status");
+        Order[] orders;
+        switch (user.db.role)
+        {
+            case Supplier:
+                orders = orderService.getOrderBySidAndStatus(user.db.id, status);
+                break;
+            case CoreBusiness:
+                orders = orderService.getOrderByCidAndStatus(user.db.id, status);
+                break;
+            case MoneyGiver:
+                return JSONUtils.failResponse("资金方没有订单");
+            default:
+                return JSONUtils.failResponse("管理员没有订单");
+        }
+        return JSONUtils.successResponse("data", JSONUtils.arrayToJSONs(orders));
+    }
+}

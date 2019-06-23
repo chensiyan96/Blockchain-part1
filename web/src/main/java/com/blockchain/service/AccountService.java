@@ -25,7 +25,7 @@ public class AccountService
 	// 充值
 	public boolean investMoney(long uid, BigDecimal money)
 	{
-		if (Math.random() > 0.5) { // 伪：判断用户银行卡里余额是否够用
+		if (true) { // 伪：判断用户银行卡里余额是否够用
 			// todo：在区块链里增加余额
 			// 伪：从用户银行账户转账到平台银行账户
 			return true;

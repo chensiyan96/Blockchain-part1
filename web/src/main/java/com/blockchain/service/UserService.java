@@ -37,7 +37,11 @@ public class UserService
 
 	public User[] getAllMoneyGivers()
 	{
-		var dbs = userMapper.getAllMoneyGivers();
+		return constructUserArray(userMapper.getAllMoneyGivers());
+	}
+
+	private static User[] constructUserArray(User.DataBase[] dbs)
+	{
 		var users = new User[dbs.length];
 		for (int i = 0; i < dbs.length; i++) {
 			users[i] = new User(dbs[i]);

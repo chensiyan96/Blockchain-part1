@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS `MoneyGiverProfile`;
 DROP TABLE IF EXISTS `SupplierProfile`;
 DROP TABLE IF EXISTS `CoreBusinessProfile`;
+DROP TABLE IF EXISTS `Order`;
 DROP TABLE IF EXISTS `Financing`;
 DROP TABLE IF EXISTS `Product`;
 DROP TABLE IF EXISTS `User`;
@@ -27,7 +28,7 @@ CREATE TABLE `Financing`(
     `Mid` bigint NOT NULL,
     `Pid` bigint NOT NULL,
     `Money` decimal(20,2) NOT NULL,
-    `CreateTime` date NOT NULL,
+    `CreateTime` datetime NOT NULL,
     `Status` tinyint NOT NULL,
     CONSTRAINT `FK_Financing_User_Sid` FOREIGN KEY (`Sid`) REFERENCES `User` (`Id`) ON DELETE CASCADE,
     CONSTRAINT `FK_Financing_User_Cid` FOREIGN KEY (`Cid`) REFERENCES `User` (`Id`) ON DELETE CASCADE,
@@ -35,7 +36,17 @@ CREATE TABLE `Financing`(
     CONSTRAINT `FK_Financing_Product_Pid` FOREIGN KEY (`Pid`) REFERENCES `Product` (`Id`) ON DELETE CASCADE
 )ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
-
+CREATE TABLE `Order`(
+    `Id` bigint NOT NULL auto_increment PRIMARY KEY ,
+    `Sid` bigint NOT NULL,
+    `Cid` bigint NOT NULL,
+    `Money` decimal(20,2) NOT NULL,
+    `CreateTime` datetime NOT NULL,
+    `EndTime` datetime NOT NULL,
+    `Status` tinyint NOT NULL,
+    CONSTRAINT `FK_Order_User_Sid` FOREIGN KEY (`Sid`) REFERENCES `User` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `FK_Order_User_Cid` FOREIGN KEY (`Cid`) REFERENCES `User` (`Id`) ON DELETE CASCADE
+)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 /*
 CREATE TABLE `CoreBusinessProfile` (

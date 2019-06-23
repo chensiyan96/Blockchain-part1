@@ -32,6 +32,9 @@ public class AccountController
 	{
         var req = new JSONObject(request);
         var money = new BigDecimal(req.getString("money"));
+		if (money.compareTo(BigDecimal.ZERO) <= 0) {
+			return JSONUtils.failResponse("金额必须大于0");
+		}
 	    if (accountService.investMoney(user.db.id, money)) {
             return JSONUtils.successResponse();
         }
@@ -46,6 +49,9 @@ public class AccountController
 	{
         var req = new JSONObject(request);
         var money = new BigDecimal(req.getString("money"));
+		if (money.compareTo(BigDecimal.ZERO) <= 0) {
+			return JSONUtils.failResponse("金额必须大于0");
+		}
         if (accountService.withdrawMoney(user.db.id, money)) {
             return JSONUtils.successResponse();
         }

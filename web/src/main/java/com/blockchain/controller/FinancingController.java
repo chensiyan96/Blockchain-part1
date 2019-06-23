@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.sql.Date;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 
 @RestController
 @RequestMapping(value = "api/financing")
@@ -55,18 +56,23 @@ public class FinancingController
             return JSONUtils.failResponse("资金方email身份不正确");
         }
 
-        // 3.创建Financing对象
+        // 3.检查产品和金额
+        //todo：检查产品
+        var money = req.getBigDecimal("adopt_money");
+        if (money.compareTo(BigDecimal.ZERO) <= 0) {
+            return JSONUtils.failResponse("金额必须大于0");
+        }
+
+        // 4.创建Financing对象
         var fin = new Financing();
         fin.setSupplier(us);
         fin.setCoreBusiness(uc);
         fin.setMoneyGiver(um);
-        fin.db.pid = req.getLong("product_id"); //todo：检查产品是否存在
-        fin.db.money = req.getBigDecimal("adopt_money");
-        fin.db.createTime = new Date(System.currentTimeMillis());
+        fin.db.pid = req.getLong("product_id");
+        fin.db.money = money;
+        fin.db.createTime = new Timestamp(System.currentTimeMillis());
         fin.db.status = 0;
-
-        // 4.如果下两步设置了自动通过，则直接通过
-        // todo
+        // todo：如果下两步设置了自动通过，则直接通过
 
         // 5.在数据库中添加字段
         if (financingService.insertFinancing(fin) == 0) {
