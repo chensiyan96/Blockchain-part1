@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository;
 public interface OrderMapper extends MapperBase
 {
     @Options(useGeneratedKeys = true)
-    @Insert("insert into `Order`(Id,Sid,Cid,Mid,CreateTime,Status) "
-            + "values(#{id},#{sid},#{cid},#{mid},#{createTime},#{status})")
+    @Insert("insert into `Order`(Id,Sid,Cid,Mid,Number,CreateTime,EndTime,Status) "
+            + "values(#{id},#{sid},#{cid},#{mid},#{Number},#{createTime},#{endTime},#{status})")
     boolean insertOrder(Order.DataBase order);
 
     @Select("select * from `Order` where Id = #{id}")
@@ -24,7 +24,4 @@ public interface OrderMapper extends MapperBase
 
     @Update("update `Order` set Status = #{status} where Id = #{id}")
     void updateOrderState(@Param("id") long id, @Param("id") byte status);
-
-    @Delete("delete from `Order` where Id = #{id}")
-    void deleteOrderById(@Param("id") long id);
 }

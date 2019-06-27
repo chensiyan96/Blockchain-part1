@@ -43,7 +43,7 @@ public class OrderController
         if (us == null) {
             return JSONUtils.failResponse("供应商email不存在");
         }
-        if (us.db.role !=  User.Roles.Supplier) {
+        if (us.db.role != User.Roles.Supplier) {
             return JSONUtils.failResponse("供应商email身份不正确");
         }
 
@@ -59,6 +59,7 @@ public class OrderController
         order.setCoreBusiness(uc);
         order.db.money = money;
         order.db.createTime = new Timestamp(System.currentTimeMillis());
+        order.db.days = req.getInt("days");
         order.db.status = 0;
 
         // 5.在数据库中添加字段
@@ -97,7 +98,6 @@ public class OrderController
 
         // 4.更新订单状态
         order.db.status = 1;
-        order.db.endTime = new Timestamp(System.currentTimeMillis());
         orderService.updateOrderStatus(order);
 
         // 5.返回成功提示
@@ -106,7 +106,7 @@ public class OrderController
 
     // 获取当前登录的用户处于[参数status]状态下的所有订单
     @Authorization
-    @RequestMapping(value = "getOrderByUserAndStatus", method = { RequestMethod.GET })
+    @RequestMapping(value = "getOrderByUserAndStatus", method = { RequestMethod.POST })
     public String getOrderByUserAndStatus(@CurrentUser User user, @RequestBody String request)
     {
         var req = new JSONObject(request);

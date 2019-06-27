@@ -4,21 +4,20 @@ import com.blockchain.model.Credit;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+
 @Repository
 @Mapper
-public interface CreditMapper
+public interface CreditMapper extends MapperBase
 {
 	@Options(useGeneratedKeys = true)
-	@Insert("insert into Credits (Money,CreateTime,Deadline,PartyA,PartyB,Status) "
-			+ "values(#{money},#{createTime},#{deadline},#{partyA},#{partyB},0)")
-	void insertCredit(Credit c);
+	@Insert("insert into Credit (Rank,Applied,Approved) "
+			+ "values(#{rank},#{applied},#{approved})")
+	boolean insertCredit(Credit.DataBase credit);
 
 	@Select("select * from Credits where Id = #{id}")
-	Credit getCredit(@Param("id")int id);
+	Credit.DataBase getCreditById(@Param("id")long id);
 
-	@Update("update Credits set Status = #{s} where Id = #{id}")
-	void updateStatus(@Param("s")int status,@Param("id")int id);
-
-	@Update("update Credits set PartyB = #{PartyB} where Id = #{id}")
-	void updatePartyB(@Param("PartyB")int PartyB,@Param("id")int id);
+	@Update("update Credits set Rank = #{rank}, Applied = #{applied}, Approved = #{approved} where Id = #{id}")
+	void updateCreditInfo(@Param("id")long id, @Param("rank")String rank, @Param("applied") BigDecimal applied, @Param("approved")BigDecimal approved);
 }

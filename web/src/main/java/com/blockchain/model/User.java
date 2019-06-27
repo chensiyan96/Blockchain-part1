@@ -29,6 +29,7 @@ public class User implements ToJSON
         public String additional;
         public byte frozen;
         public byte autoPass;
+        public long lastTransfer;
     }
 
 	public DataBase db;

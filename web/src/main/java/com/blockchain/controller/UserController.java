@@ -112,7 +112,7 @@ public class UserController
 	}
 
 	// 通过email查询一个用户的信息
-	@RequestMapping(value = "getUserByEmail", method = { RequestMethod.GET })
+	@RequestMapping(value = "getUserByEmail", method = { RequestMethod.POST })
 	public String getUserByEmail(@RequestBody String request)
 	{
 		var req = new JSONObject(request);

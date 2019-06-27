@@ -4,6 +4,8 @@ import com.blockchain.model.Financing;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
+
 @Repository
 @Mapper
 public interface FinancingMapper extends MapperBase
@@ -26,5 +28,11 @@ public interface FinancingMapper extends MapperBase
 	Financing.DataBase[] getFinancingByMidAndStatus(@Param("mid") long mid, @Param("status") byte status);
 
 	@Update("update `Financing` set Status = #{status} where Id = #{id}")
-	void updateFinancingStatus(@Param("id") long id, @Param("id") byte status);
+	void updateFinancingStatus(@Param("id") long id, @Param("status") byte status);
+
+	@Update("update `Financing` set PayTime = #{payTime} where Id = #{id}")
+	void updateFinancingPayTime(@Param("id") long id, @Param("payTime") Timestamp payTime);
+
+	@Update("update `Financing` set RepayTime = #{repayTime} where Id = #{id}")
+	void updateFinancingRepayTime(@Param("id") long id, @Param("repayTime") Timestamp repayTime);
 }

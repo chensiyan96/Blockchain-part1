@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository;
 public interface UserMapper extends MapperBase
 {
 	@Options(useGeneratedKeys = true)
-	@Insert("insert into `User`(Email,Name,PasswordHash,Role,Additional,Frozen,AutoPass) " +
-			"values (#{email},#{name},#{passwordHash},#{role},#{additional},#{frozen},#{autoPass})")
+	@Insert("insert into `User`(Email,Name,PasswordHash,Role,Additional,Frozen,AutoPass,LastTransfer) " +
+			"values (#{email},#{name},#{passwordHash},#{role},#{additional},#{frozen},#{autoPass},#{lastTransfer})")
 	boolean insertUser(User.DataBase user);
 
 	@Select("select * from `User` where Id = #{id} ")
@@ -32,4 +32,7 @@ public interface UserMapper extends MapperBase
 			"Frozen = #{frozen}, AutoPass = #{autoPass} where Id = #{id} ")
 	void updateUserInfo(@Param("id") long id, @Param("name") String name, @Param("psw_hash") String psw_hash,
 						@Param("additional") String additional, @Param("frozen") byte frozen, @Param("autoPass") byte autoPass);
+
+	@Update("update `User` set LastTransfer = #{lastTransfer} where Id = #{id} ")
+	void updateLastTransfer(@Param("id") long id, @Param("lastTransfer") long lastTransfer);
 }

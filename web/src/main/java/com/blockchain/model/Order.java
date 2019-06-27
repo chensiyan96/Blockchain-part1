@@ -13,9 +13,10 @@ public class Order implements ToJSON
         public long id;
         public long sid; // 供应商外键
         public long cid; // 核心企业外键
+        public long number; // 前端用的，后端没什么用
         public BigDecimal money;
         public Timestamp createTime;
-        public Timestamp endTime;
+        public int days;
         public byte status;
     }
 
@@ -38,9 +39,11 @@ public class Order implements ToJSON
     {
         var res = new JSONObject();
         res.put("id", db.id);
+        res.put("number", db.number);
         res.put("money", db.money);
         res.put("createTime", db.createTime);
-        res.put("endTime", db.endTime);
+        res.put("days", db.days);
+        res.put("endTime", new Timestamp(db.createTime.getTime() + db.days * (24 * 60 * 60 * 1000)));
         res.put("status", db.status);
         if (supplier != null) {
             res.put("Supplier", supplier.toJSON());

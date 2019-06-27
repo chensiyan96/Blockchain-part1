@@ -62,29 +62,4 @@ public class AccountController
             return JSONUtils.failResponse("账户余额不足");
         }
 	}
-
-//	@Authorization
-//	@RequestMapping(value = "getPayments", method = {RequestMethod.GET})
-//	public String getPayments(@CurrentUser User user)
-//	{
-//		var response = new JSONObject();
-//		try
-//		{
-//			var r = paymentService.getPaymentsByUser(user.id);
-//			List<JSONObject> j = new LinkedList<>();
-//			for (var i : r)
-//			{
-//				j.add(i.toJSON());
-//			}
-//			response.put("status", 1);
-//			response.put("msg", "Success");
-//			response.put("data", j);
-//		} catch (Exception e)
-//		{
-//			response.put("status", 0);
-//			response.put("msg", e.getMessage());
-//		}
-//		return response.toString();
-//	}
-
 }

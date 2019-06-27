@@ -17,26 +17,61 @@ public class AccessRuleController
     @Autowired
     private AccessRuleService accessRuleService;
 
-    // 设置准入规则
+    // 添加准入规则
     @Authorization
-    @RequestMapping(value = "setAccessRule", method = { RequestMethod.POST })
-    public String setAccessRule(@CurrentUser User user, @RequestBody String request)
+    @RequestMapping(value = "insertAccessRule", method = { RequestMethod.POST })
+    public String insertAccessRule(@CurrentUser User user, @RequestBody String request)
     {
-        // 1.检查用户身份
         if (user.db.role != User.Roles.Admin) {
-            return JSONUtils.failResponse("只有管理员才能设置准入规则");
+            return JSONUtils.failResponse("只有管理员才能添加准入规则");
         }
-
-        // 2.设置准入规则并返回成功提示
         var req = new JSONObject(request);
-        accessRuleService.setAccessRule(req.getString("rule"));
+        var id = accessRuleService.insertAccessRule(req.getString("content"));
+        if (id == 0) {
+            return JSONUtils.failResponse("添加失败");
+        }
+        return JSONUtils.successResponse(id);
+    }
+
+    // 修改准入规则
+    @Authorization
+    @RequestMapping(value = "updateAccessRule", method = { RequestMethod.POST })
+    public String updateAccessRule(@CurrentUser User user, @RequestBody String request)
+    {
+        if (user.db.role != User.Roles.Admin) {
+            return JSONUtils.failResponse("只有管理员才能修改准入规则");
+        }
+        var req = new JSONObject(request);
+        var id = req.getLong("id");
+        if (accessRuleService.getAccessRuleById(id) == null) {
+            return JSONUtils.failResponse("不存在该规则");
+        }
+        var content = req.getString("content");
+        accessRuleService.updateAccessRule(id, content);
         return JSONUtils.successResponse();
     }
 
-    // 获取准入规则
-    @RequestMapping(value = "getAccessRule", method = { RequestMethod.GET })
-    public String getAccessRule()
+    // 删除准入规则
+    @Authorization
+    @RequestMapping(value = "deleteAccessRule", method = { RequestMethod.POST })
+    public String deleteAccessRule(@CurrentUser User user, @RequestBody String request)
     {
-        return JSONUtils.successResponse(accessRuleService.getAccessRule());
+        if (user.db.role != User.Roles.Admin) {
+            return JSONUtils.failResponse("只有管理员才能删除准入规则");
+        }
+        var req = new JSONObject(request);
+        var id = req.getLong("id");
+        if (accessRuleService.getAccessRuleById(id) == null) {
+            return JSONUtils.failResponse("不存在该规则");
+        }
+        accessRuleService.deleteAccessRule(id);
+        return JSONUtils.successResponse();
+    }
+
+    // 获取所有准入规则
+    @RequestMapping(value = "getAllAccessRules", method = { RequestMethod.GET })
+    public String getAllAccessRules()
+    {
+        return JSONUtils.successResponse(JSONUtils.arrayToJSONs(accessRuleService.getAllAccessRules()));
     }
 }

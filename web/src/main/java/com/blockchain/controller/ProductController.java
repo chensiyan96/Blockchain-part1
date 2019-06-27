@@ -45,13 +45,6 @@ public class ProductController
 		return JSONUtils.successResponse(product.db.id);
 	}
 
-	// 获取所有产品
-	@RequestMapping(value = "getAllProducts", method = { RequestMethod.GET })
-	public String getAllProducts()
-	{
-		return JSONUtils.successResponse(JSONUtils.arrayToJSONs(productService.getAllProducts()));
-	}
-
 	// 修改产品信息
 	@Authorization
 	@RequestMapping(value = "updateProduct", method = { RequestMethod.POST })
@@ -98,5 +91,12 @@ public class ProductController
 		// 3.删除产品并返回成功提示
 		productService.deleteProductById(product.db.id);
 		return JSONUtils.successResponse();
+	}
+
+	// 获取所有产品
+	@RequestMapping(value = "getAllProducts", method = { RequestMethod.GET })
+	public String getAllProducts()
+	{
+		return JSONUtils.successResponse(JSONUtils.arrayToJSONs(productService.getAllProducts()));
 	}
 }

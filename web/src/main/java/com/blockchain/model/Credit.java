@@ -1,36 +1,38 @@
 package com.blockchain.model;
 
-import com.blockchain.utils.MDateCmp;
 import com.blockchain.utils.ToJSON;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 public class Credit implements ToJSON
 {
-	public int id;
-	public BigDecimal money;
-	public Date createTime;
-	public Date deadline;
+	public static class DataBase
+	{
+		public long id;
+		public String rank;
+		public BigDecimal applied;
+		public BigDecimal approved;
+	}
+	public DataBase db;
 
-	//A掏钱给B
-	public int partyA;
-	public int partyB;
+	public Credit()
+	{
+		db = new DataBase();
+	}
 
-	//打借条的时候时0，还了是1，确认以及还了是2,超期未还是3
-	public int status;
+	public Credit(DataBase db)
+	{
+		this.db = db;
+	}
 
 	public JSONObject toJSON()
 	{
 		var res = new JSONObject();
-		res.put("cid", id);
-		res.put("money", money);
-		res.put("partyA", partyA);
-		res.put("partyB", partyB);
-		res.put("status", status);
-		res.put("createTime", MDateCmp.timeFormat(createTime));
-		res.put("deadline", MDateCmp.timeFormat(deadline));
+		res.put("id", db.id);
+		res.put("rank", db.rank);
+		res.put("applied", db.applied);
+		res.put("approved", db.approved);
 		return res;
 	}
 }

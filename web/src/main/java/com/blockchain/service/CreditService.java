@@ -2,8 +2,6 @@ package com.blockchain.service;
 
 import com.blockchain.dao.CreditMapper;
 import com.blockchain.model.Credit;
-import java.math.BigDecimal;
-import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,41 +10,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class CreditService
 {
-
 	@Autowired
 	private CreditMapper creditMapper;
 
-	public int create(int partyA, int partyB, Date createTime, Date deadline, BigDecimal money)
-			throws Exception
+	public boolean insertCredit(Credit credit)
 	{
-
-		Credit c = new Credit();
-		c.partyA = partyA;
-		c.partyB = partyB;
-		c.createTime = createTime;
-		c.deadline = deadline;
-		c.money = money;
-
-		creditMapper.insertCredit(c);
-		if (c.id == 0)
-		{
-			throw new Exception("借条创建错误");
-		}
-		return c.id;
+		return creditMapper.insertCredit(credit.db);
 	}
 
-	public Credit getCredit(int id) throws Exception
+	public Credit getCreditById(int id)
 	{
-		var res = creditMapper.getCredit(id);
-		if (res == null)
-		{
-			throw new Exception("id错误");
-		}
-		return res;
+		var db = creditMapper.getCreditById(id);
+		return db == null ? null : new Credit(db);
 	}
 
-	public void updateStatus(int status, int id)
+	public void updateCreditInfo(Credit credit)
 	{
-		creditMapper.updateStatus(status, id);
+		creditMapper.updateCreditInfo(credit.db.id, credit.db.rank, credit.db.applied, credit.db.approved);
 	}
 }

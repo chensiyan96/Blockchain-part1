@@ -226,7 +226,7 @@ public class FinancingController
 
     // 获取当前登录的用户处于某状态下的所有融资申请
 	@Authorization
-	@RequestMapping(value = "getFinancingByUserAndStatus", method = { RequestMethod.GET })
+	@RequestMapping(value = "getFinancingByUserAndStatus", method = { RequestMethod.POST })
 	public String getFinancingByUserAndStatus(@CurrentUser User user, @RequestBody String request)
 	{
         var req = new JSONObject(request);
