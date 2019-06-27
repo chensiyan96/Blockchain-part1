@@ -6,12 +6,12 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @Mapper
-public interface FinancingMapper
+public interface FinancingMapper extends MapperBase
 {
 	@Options(useGeneratedKeys = true)
-	@Insert("insert into `Financing`(Id,Sid,Cid,Mid,CreateTime,Status) "
-			+ "values(#{id},#{sid},#{cid},#{mid},#{createTime},#{status})")
-	long insertFinancing(Financing.DataBase fin);
+	@Insert("insert into `Financing`(Id,Sid,Cid,Mid,Money,Days,Rate,CreateTime,Status) "
+			+ "values(#{id},#{sid},#{cid},#{mid},#{money},#{days},#{rate},#{createTime},#{status})")
+	boolean insertFinancing(Financing.DataBase fin);
 
 	@Select("select * from `Financing` where Id = #{id}")
 	Financing.DataBase getFinancingById(@Param("id") long id);
@@ -26,8 +26,5 @@ public interface FinancingMapper
 	Financing.DataBase[] getFinancingByMidAndStatus(@Param("mid") long mid, @Param("status") byte status);
 
 	@Update("update `Financing` set Status = #{status} where Id = #{id}")
-	void updateFinancingState(@Param("id") long id, @Param("id") byte status);
-
-	@Delete("delete from `Financing` where Id = #{id}")
-	void deleteFinancingById(@Param("id") long id);
+	void updateFinancingStatus(@Param("id") long id, @Param("id") byte status);
 }

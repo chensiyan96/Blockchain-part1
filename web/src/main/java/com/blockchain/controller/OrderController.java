@@ -10,13 +10,12 @@ import com.blockchain.utils.CurrentUser;
 import com.blockchain.utils.JSONUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 
+@CrossOrigin
 @RestController
 @RequestMapping(value = "api/order")
 public class OrderController
@@ -28,10 +27,10 @@ public class OrderController
     @Autowired
     private AccountService accountService;
 
-    // 新建订单
+    // 创建一个订单
     @Authorization
-    @RequestMapping(value = "create", method = { RequestMethod.POST })
-    public String create(@CurrentUser User uc, @RequestBody String request)
+    @RequestMapping(value = "createOrder", method = { RequestMethod.POST })
+    public String createOrder(@CurrentUser User uc, @RequestBody String request)
     {
         // 1.检查用户身份
         if (uc.db.role != User.Roles.CoreBusiness) {
@@ -59,7 +58,7 @@ public class OrderController
         order.setSupplier(us);
         order.setCoreBusiness(uc);
         order.db.money = money;
-        //fin.db.createTime = ;
+        order.db.createTime = new Timestamp(System.currentTimeMillis());
         order.db.status = 0;
 
         // 5.在数据库中添加字段
@@ -68,10 +67,10 @@ public class OrderController
         }
 
         // 6.返回成功提示
-        return JSONUtils.successResponse();
+        return JSONUtils.successResponse(order.db.id);
     }
 
-    // 付款
+    // 订单付款
     @Authorization
     @RequestMapping(value = "pay", method = { RequestMethod.POST })
     public String pay(@CurrentUser User user, @RequestBody String request)
@@ -98,6 +97,7 @@ public class OrderController
 
         // 4.更新订单状态
         order.db.status = 1;
+        order.db.endTime = new Timestamp(System.currentTimeMillis());
         orderService.updateOrderStatus(order);
 
         // 5.返回成功提示
@@ -125,6 +125,6 @@ public class OrderController
             default:
                 return JSONUtils.failResponse("管理员没有订单");
         }
-        return JSONUtils.successResponse("data", JSONUtils.arrayToJSONs(orders));
+        return JSONUtils.successResponse(JSONUtils.arrayToJSONs(orders));
     }
 }

@@ -13,9 +13,9 @@ public class UserService
 	@Autowired
 	private UserMapper userMapper;
 
-	public long insertUser(User user)
+	public boolean insertUser(User user)
 	{
-		return user.db.id = userMapper.insertUser(user.db);
+		return userMapper.insertUser(user.db);
 	}
 
 	public User getUserByID(long id)
@@ -32,7 +32,17 @@ public class UserService
 
 	public void updateUser(User user)
 	{
-		userMapper.updateUserInfo(user.db.id, user.db.name, user.db.passwordHash, user.db.additional);
+		userMapper.updateUserInfo(user.db.id, user.db.name, user.db.passwordHash, user.db.additional, user.db.frozen, user.db.autoPass);
+	}
+
+	public User[] getAllSuppliers()
+	{
+		return constructUserArray(userMapper.getAllSuppliers());
+	}
+
+	public User[] getAllCoreBusinesses()
+	{
+		return constructUserArray(userMapper.getAllCoreBusinesses());
 	}
 
 	public User[] getAllMoneyGivers()

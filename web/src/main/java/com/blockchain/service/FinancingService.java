@@ -12,21 +12,33 @@ public class FinancingService
 {
 	@Autowired
 	private FinancingMapper financingMapper;
+	@Autowired
+	private UserService userService;
 
 	public long insertFinancing(Financing fin)
 	{
-		return fin.db.id = financingMapper.insertFinancing(fin.db);
+		if (financingMapper.insertFinancing(fin.db)) {
+			return fin.db.id = financingMapper.getlastInsertId();
+		}
+		return 0;
 	}
 
 	public Financing getFinancingByID(long id)
 	{
 		var db = financingMapper.getFinancingById(id);
-		return db == null ? null : new Financing(db);
+		if (db == null) {
+			return null;
+		}
+		var fin = new Financing(db);
+		fin.setSupplier(userService.getUserByID(fin.db.sid));
+		fin.setCoreBusiness(userService.getUserByID(fin.db.cid));
+		fin.setMoneyGiver(userService.getUserByID(fin.db.mid));
+		return fin;
 	}
 
 	public void updateFinancingStatus(Financing fin)
 	{
-		financingMapper.updateFinancingState(fin.db.id, fin.db.status);
+		financingMapper.updateFinancingStatus(fin.db.id, fin.db.status);
 	}
 
 	public Financing[] getFinancingBySidAndStatus(long sid, byte status)
@@ -44,11 +56,14 @@ public class FinancingService
 		return constructFinancingArray(financingMapper.getFinancingByMidAndStatus(mid, status));
 	}
 
-	private static Financing[] constructFinancingArray(Financing.DataBase[] dbs)
+	private Financing[] constructFinancingArray(Financing.DataBase[] dbs)
 	{
 		var fins = new Financing[dbs.length];
 		for (int i = 0; i < dbs.length; i++) {
 			fins[i] = new Financing(dbs[i]);
+			fins[i].setSupplier(userService.getUserByID(fins[i].db.sid));
+			fins[i].setCoreBusiness(userService.getUserByID(fins[i].db.cid));
+			fins[i].setMoneyGiver(userService.getUserByID(fins[i].db.mid));
 		}
 		return fins;
 	}

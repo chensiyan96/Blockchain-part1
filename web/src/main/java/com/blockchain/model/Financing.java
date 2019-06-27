@@ -14,9 +14,12 @@ public class Financing implements ToJSON
 		public long sid; // 供应商外键
 		public long cid; // 核心企业外键
 		public long mid; // 资金方外键
-		public long pid; // 产品外键
 		public BigDecimal money;
 		public Timestamp createTime;
+		public Timestamp payTime;
+		public Timestamp repayTime;
+		public int days;
+		public BigDecimal rate;
 		public byte status;
 	}
 
@@ -42,6 +45,10 @@ public class Financing implements ToJSON
 		res.put("id", db.id);
 		res.put("money", db.money);
 		res.put("createTime", db.createTime);
+		res.put("payTime", db.payTime);
+		res.put("repayTime", db.repayTime);
+		res.put("days", db.days);
+		res.put("rate", db.rate);
 		res.put("status", db.status);
 		if (supplier != null) {
 			res.put("Supplier", supplier.toJSON());

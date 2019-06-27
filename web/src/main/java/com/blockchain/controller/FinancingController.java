@@ -4,20 +4,19 @@ import com.blockchain.model.Financing;
 import com.blockchain.model.User;
 import com.blockchain.service.AccountService;
 import com.blockchain.service.FinancingService;
+import com.blockchain.service.ProductService;
 import com.blockchain.service.UserService;
 import com.blockchain.utils.Authorization;
 import com.blockchain.utils.CurrentUser;
 import com.blockchain.utils.JSONUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
+@CrossOrigin
 @RestController
 @RequestMapping(value = "api/financing")
 public class FinancingController
@@ -28,11 +27,13 @@ public class FinancingController
 	private FinancingService financingService;
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private ProductService productService;
 
-    // 新建融资申请
+    // 创建一个融资申请
 	@Authorization
-	@RequestMapping(value = "create", method = { RequestMethod.POST })
-	public String create(@CurrentUser User us, @RequestBody String request)
+	@RequestMapping(value = "createFinancing", method = { RequestMethod.POST })
+	public String createFinancing(@CurrentUser User us, @RequestBody String request)
 	{
 	    // 1.检查用户身份
 	    if (us.db.role != User.Roles.Supplier) {
@@ -48,7 +49,7 @@ public class FinancingController
         if (uc.db.role !=  User.Roles.CoreBusiness) {
             return JSONUtils.failResponse("核心企业email身份不正确");
         }
-        User um = userService.getUserByEmail(req.getString("CoreBusiness_email").toUpperCase());
+        User um = userService.getUserByEmail(req.getString("MoneyGiver_email").toUpperCase());
         if (um == null) {
             return JSONUtils.failResponse("资金方email不存在");
         }
@@ -57,7 +58,10 @@ public class FinancingController
         }
 
         // 3.检查产品和金额
-        //todo：检查产品
+        var product = productService.getProductById(req.getLong("pid"));
+        if (product == null) {
+            return JSONUtils.failResponse("此产品不存在");
+        }
         var money = req.getBigDecimal("adopt_money");
         if (money.compareTo(BigDecimal.ZERO) <= 0) {
             return JSONUtils.failResponse("金额必须大于0");
@@ -68,19 +72,31 @@ public class FinancingController
         fin.setSupplier(us);
         fin.setCoreBusiness(uc);
         fin.setMoneyGiver(um);
-        fin.db.pid = req.getLong("product_id");
         fin.db.money = money;
+        fin.db.days = product.db.days; // 这里需要复制信息而不是用外键，因为产品可能会改
+        fin.db.rate = product.db.rate;
         fin.db.createTime = new Timestamp(System.currentTimeMillis());
-        fin.db.status = 0;
-        // todo：如果下两步设置了自动通过，则直接通过
 
-        // 5.在数据库中添加字段
+        // 5.自动通过授信和确权，如果设置了的话
+        if (fin.moneyGiver.db.autoPass != 0) { // 资金方可选自动通过授信
+            if (fin.coreBusiness.db.autoPass != 0) { // 核心企业可选自动通过确权
+                fin.db.status = 2;
+            }
+            else {
+                fin.db.status = 1;
+            }
+        }
+        else {
+            fin.db.status = 0;
+        }
+
+        // 6.在数据库中添加字段
         if (financingService.insertFinancing(fin) == 0) {
             return JSONUtils.failResponse("创建失败");
         }
 
-        // 6.返回成功提示
-        return JSONUtils.successResponse();
+        // 7.返回成功提示
+        return JSONUtils.successResponse(fin.db.id);
 	}
 
     // 授信（第一步）
@@ -104,8 +120,12 @@ public class FinancingController
         }
 
         // 3.更新融资申请状态
-        // todo： 如果下一步设置了自动通过，则直接通过
-        fin.db.status = 1;
+        if (fin.coreBusiness.db.autoPass != 0) { // 核心企业可选自动通过确权
+            fin.db.status = 2;
+        }
+        else {
+            fin.db.status = 1;
+        }
         financingService.updateFinancingStatus(fin);
 
         // 4.返回成功提示
@@ -198,15 +218,13 @@ public class FinancingController
             return JSONUtils.failResponse("账户余额不足");
         }
 
-        // 4.更新融资申请状态
+        // 4.更新融资申请状态并返回成功提示
         fin.db.status = 4;
         financingService.updateFinancingStatus(fin);
-
-        // 5.返回成功提示
         return JSONUtils.successResponse();
     }
 
-    // 获取当前登录的用户处于[参数status]状态下的所有融资申请
+    // 获取当前登录的用户处于某状态下的所有融资申请
 	@Authorization
 	@RequestMapping(value = "getFinancingByUserAndStatus", method = { RequestMethod.GET })
 	public String getFinancingByUserAndStatus(@CurrentUser User user, @RequestBody String request)
@@ -217,8 +235,8 @@ public class FinancingController
         switch (user.db.role)
         {
             case Supplier:
-                fins = financingService.getFinancingBySidAndStatus(user.db.id, status);
-                break;
+            fins = financingService.getFinancingBySidAndStatus(user.db.id, status);
+            break;
             case CoreBusiness:
                 fins = financingService.getFinancingByCidAndStatus(user.db.id, status);
                 break;
@@ -228,6 +246,6 @@ public class FinancingController
             default:
                 return JSONUtils.failResponse("管理员没有融资申请");
         }
-        return JSONUtils.successResponse("data", JSONUtils.arrayToJSONs(fins));
+        return JSONUtils.successResponse(JSONUtils.arrayToJSONs(fins));
 	}
 }

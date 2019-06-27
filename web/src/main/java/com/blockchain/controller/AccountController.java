@@ -19,13 +19,15 @@ public class AccountController
 	@Autowired
 	private AccountService accountService;
 
+	// 余额查询
 	@Authorization
 	@RequestMapping(value = "getMoney", method = { RequestMethod.GET })
 	public String getMoney(@CurrentUser User user)
 	{
-		return JSONUtils.successResponse("money", accountService.queryMoney(user.db.id));
+		return JSONUtils.successResponse(accountService.queryMoney(user.db.id));
 	}
 
+	// 充值
 	@Authorization
 	@RequestMapping(value = "recharge", method = { RequestMethod.POST })
 	public String recharge(@CurrentUser User user, @RequestBody String request)
@@ -43,6 +45,7 @@ public class AccountController
         }
 	}
 
+	// 提现
 	@Authorization
 	@RequestMapping(value = "withdraw", method = { RequestMethod.POST })
 	public String withdraw(@CurrentUser User user, @RequestBody String request)

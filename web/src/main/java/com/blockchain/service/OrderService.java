@@ -12,16 +12,27 @@ public class OrderService
 {
     @Autowired
     private OrderMapper orderMapper;
+    @Autowired
+    private UserService userService;
 
     public long insertOrder(Order order)
     {
-        return order.db.id = orderMapper.insertOrder(order.db);
+        if (orderMapper.insertOrder(order.db)) {
+            return order.db.id = orderMapper.getlastInsertId();
+        }
+        return 0;
     }
 
     public Order getOrderByID(long id)
     {
         var db = orderMapper.getOrderById(id);
-        return db == null ? null : new Order(db);
+        if (db == null) {
+            return null;
+        }
+        var order = new Order(db);
+        order.setSupplier(userService.getUserByID(order.db.sid));
+        order.setCoreBusiness(userService.getUserByID(order.db.cid));
+        return order;
     }
 
     public void updateOrderStatus(Order order)
@@ -39,11 +50,13 @@ public class OrderService
         return constructOrderArray(orderMapper.getOrderByCidAndStatus(cid, status));
     }
 
-    private static Order[] constructOrderArray(Order.DataBase[] dbs)
+    private Order[] constructOrderArray(Order.DataBase[] dbs)
     {
         var orders = new Order[dbs.length];
         for (int i = 0; i < dbs.length; i++) {
             orders[i] = new Order(dbs[i]);
+            orders[i].setSupplier(userService.getUserByID(orders[i].db.sid));
+            orders[i].setCoreBusiness(userService.getUserByID(orders[i].db.cid));
         }
         return orders;
     }

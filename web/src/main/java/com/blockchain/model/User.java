@@ -27,6 +27,8 @@ public class User implements ToJSON
         public String passwordHash;
         public Roles role;
         public String additional;
+        public byte frozen;
+        public byte autoPass;
     }
 
 	public DataBase db;
@@ -46,10 +48,13 @@ public class User implements ToJSON
 	public JSONObject toJSON()
 	{
 		var res = new JSONObject();
+        res.put("id", db.id);
 		res.put("email", db.email);
 		res.put("name", db.name);
 		res.put("role", db.role);
         res.put("additional", db.additional);
+        res.put("frozen", db.frozen);
+        res.put("autoPass", db.autoPass);
         if (profile != null) {
             res.put("profile", profile.toJSON());
         }

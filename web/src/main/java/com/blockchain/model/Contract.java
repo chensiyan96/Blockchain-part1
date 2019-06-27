@@ -3,32 +3,29 @@ package com.blockchain.model;
 import com.blockchain.utils.ToJSON;
 import org.json.JSONObject;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-public class Order implements ToJSON
+public class Contract implements ToJSON
 {
     public static class DataBase
     {
         public long id;
         public long sid; // 供应商外键
         public long cid; // 核心企业外键
-        public BigDecimal money;
         public Timestamp createTime;
-        public Timestamp endTime;
-        public byte status;
+        public String content;
     }
 
     public DataBase db;
     public User supplier;
     public User coreBusiness;
 
-    public Order()
+    public Contract()
     {
         db = new DataBase();
     }
 
-    public Order(DataBase db)
+    public Contract(DataBase db)
     {
         this.db = db;
     }
@@ -38,10 +35,8 @@ public class Order implements ToJSON
     {
         var res = new JSONObject();
         res.put("id", db.id);
-        res.put("money", db.money);
         res.put("createTime", db.createTime);
-        res.put("endTime", db.endTime);
-        res.put("status", db.status);
+        res.put("content", db.content);
         if (supplier != null) {
             res.put("Supplier", supplier.toJSON());
         }

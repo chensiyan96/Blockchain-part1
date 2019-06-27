@@ -50,8 +50,7 @@ public class AESToken
 
 
 	public static String decrypt(String encrypted)
-			throws InvalidAlgorithmParameterException, InvalidKeyException,
-			BadPaddingException, IllegalBlockSizeException
+			throws InvalidAlgorithmParameterException, InvalidKeyException,	BadPaddingException, IllegalBlockSizeException
 	{
 		cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
 		byte[] decryptedBytes = cipher.doFinal(Base64.decodeBase64(encrypted));

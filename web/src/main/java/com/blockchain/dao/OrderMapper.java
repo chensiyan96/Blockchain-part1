@@ -6,12 +6,12 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @Mapper
-public interface OrderMapper 
+public interface OrderMapper extends MapperBase
 {
     @Options(useGeneratedKeys = true)
     @Insert("insert into `Order`(Id,Sid,Cid,Mid,CreateTime,Status) "
             + "values(#{id},#{sid},#{cid},#{mid},#{createTime},#{status})")
-    long insertOrder(Order.DataBase order);
+    boolean insertOrder(Order.DataBase order);
 
     @Select("select * from `Order` where Id = #{id}")
     Order.DataBase getOrderById(@Param("id") long id);
