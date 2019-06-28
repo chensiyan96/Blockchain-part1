@@ -101,7 +101,7 @@ public class OrderController
         orderService.updateOrderStatus(order);
 
         // 5.返回成功提示
-        return JSONUtils.successResponse();
+        return JSONUtils.successResponse(order.db.money);
     }
 
     // 获取当前登录的用户处于[参数status]状态下的所有订单
@@ -126,5 +126,36 @@ public class OrderController
                 return JSONUtils.failResponse("管理员没有订单");
         }
         return JSONUtils.successResponse(JSONUtils.arrayToJSONs(orders));
+    }
+
+    // 获取某用户的所有融资申请
+    @Authorization
+    @RequestMapping(value = "getOrderByEmail", method = { RequestMethod.POST })
+    public String getOrderByEmail(@CurrentUser User user, @RequestBody String request)
+    {
+        if (user.db.role != User.Roles.Admin) {
+            return JSONUtils.failResponse("只有管理员才能获取");
+        }
+        var req = new JSONObject(request);
+        var user2 = userService.getUserByEmail(req.getString("email").toUpperCase());
+        if (user2 == null) {
+            return JSONUtils.failResponse("此用户不存在");
+        }
+
+        Order[] fins;
+        switch (user2.db.role)
+        {
+            case Supplier:
+                fins = orderService.getOrderBySid(user2.db.id);
+                break;
+            case CoreBusiness:
+                fins = orderService.getOrderByCid(user2.db.id);
+                break;
+            case MoneyGiver:
+                return JSONUtils.failResponse("资金方没有订单");
+            default:
+                return JSONUtils.failResponse("管理员没有融资申请");
+        }
+        return JSONUtils.successResponse(JSONUtils.arrayToJSONs(fins));
     }
 }

@@ -40,6 +40,16 @@ public class OrderService
         orderMapper.updateOrderState(order.db.id, order.db.status);
     }
 
+    public Order[] getOrderBySid(long sid)
+    {
+        return constructOrderArray(orderMapper.getOrderBySid(sid));
+    }
+
+    public Order[] getOrderByCid(long cid)
+    {
+        return constructOrderArray(orderMapper.getOrderByCid(cid));
+    }
+
     public Order[] getOrderBySidAndStatus(long sid, byte status)
     {
         return constructOrderArray(orderMapper.getOrderBySidAndStatus(sid, status));
@@ -48,6 +58,16 @@ public class OrderService
     public Order[] getOrderByCidAndStatus(long cid, byte status)
     {
         return constructOrderArray(orderMapper.getOrderByCidAndStatus(cid, status));
+    }
+
+    public int getOrderCountBySidAndStatus(long sid, byte status)
+    {
+        return orderMapper.getOrderCountBySidAndStatus(sid, status);
+    }
+
+    public int getOrderCountByCidAndStatus(long cid, byte status)
+    {
+        return orderMapper.getOrderCountByCidAndStatus(cid, status);
     }
 
     private Order[] constructOrderArray(Order.DataBase[] dbs)

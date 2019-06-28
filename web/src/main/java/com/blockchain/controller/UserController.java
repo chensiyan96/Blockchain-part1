@@ -1,7 +1,9 @@
 package com.blockchain.controller;
 
+import com.blockchain.model.Credit;
 import com.blockchain.model.User;
 import com.blockchain.service.AccountService;
+import com.blockchain.service.CreditService;
 import com.blockchain.service.UserService;
 import com.blockchain.utils.AESToken;
 import com.blockchain.utils.Authorization;
@@ -20,6 +22,8 @@ public class UserController
 	private UserService userService;
 	@Autowired
 	private AccountService accountService;
+	@Autowired
+	private CreditService creditService;
 
 	// 注册
 	@RequestMapping(value = "register", method = { RequestMethod.POST })
@@ -50,27 +54,17 @@ public class UserController
 		user.db.role = User.Roles.valueOf(req.getString("role"));
 		user.db.additional = req.has("additional") ? req.getString("additional") : null;
 
-		// 3.根据用户身份添加profile
-		// todo
-//		switch (user.db.role)
-//		{
-//			case Supplier:
-//				user.profile = new SupplierProfile();
-//				break;
-//			case CoreBusiness:
-//				user.profile = new CoreBusinessProfile();
-//				break;
-//			case MoneyGiver:
-//				user.profile = new MoneyGiverProfile();
-//				break;
-//			case Admin:
-//				user.profile = null;
-//				break;
-//		}
-
-		// 4.在数据库中添加字段
-		if (!userService.insertUser(user)) {
+		// 3.在数据库中添加字段
+		if (userService.insertUser(user) == 0) {
 			return JSONUtils.failResponse("注册失败");
+		}
+
+		// 4.如果是供应商需要添加授信表
+		if (user.db.role == User.Roles.Supplier)
+		{
+			var credit = new Credit();
+			credit.db.sid = user.db.id;
+			creditService.insertCredit(credit);
 		}
 
 		// 5.在区块链里创建账户并返回成功提示
@@ -108,6 +102,20 @@ public class UserController
 	@RequestMapping(value = "getUserInfo", method = { RequestMethod.GET })
 	public String getUserInfo(@CurrentUser User user)
 	{
+		userService.addProfile(user);
+		return JSONUtils.successResponse(user.toJSON());
+	}
+
+	// 通过id查询一个用户的信息
+	@RequestMapping(value = "getUserById", method = { RequestMethod.POST })
+	public String getUserById(@RequestBody String request)
+	{
+		var req = new JSONObject(request);
+		var user = userService.getUserByID(req.getLong("id"));
+		if (user == null) {
+			return JSONUtils.failResponse("不存在该用户");
+		}
+		userService.addProfile(user);
 		return JSONUtils.successResponse(user.toJSON());
 	}
 
@@ -120,6 +128,7 @@ public class UserController
 		if (user == null) {
 			return JSONUtils.failResponse("不存在该用户");
 		}
+		userService.addProfile(user);
 		return JSONUtils.successResponse(user.toJSON());
 	}
 
@@ -141,7 +150,7 @@ public class UserController
 	{
 		var req = new JSONObject(request);
 		user.db.additional = req.has("additional") ? req.getString("additional") : null;
-		userService.updateUser(user);
+		//userService.updateUser(user);
 		return JSONUtils.successResponse();
 	}
 
@@ -159,7 +168,7 @@ public class UserController
 
 		// 2.在数据库中更新并返回成功提示
 		user.hashAndSetPassword(req.getString("newPassword"));
-		userService.updateUser(user);
+		//userService.updateUser(user);
 		return JSONUtils.successResponse();
 	}
 
@@ -222,5 +231,31 @@ public class UserController
 	public String getAllMoneyGivers()
 	{
 		return JSONUtils.successResponse(JSONUtils.arrayToJSONs(userService.getAllMoneyGivers()));
+	}
+
+	// 设置实名信息
+	@Authorization
+	@RequestMapping(value = "setVerification", method = { RequestMethod.POST })
+	public String setVerification(@CurrentUser User user, @RequestBody String request)
+	{
+		var req = new JSONObject(request);
+		userService.setVerification(user.db.email, req.getString("detail"));
+		return JSONUtils.successResponse();
+	}
+
+	// 获取实名信息
+	@RequestMapping(value = "getVerification", method = { RequestMethod.POST })
+	public String getVerification(@RequestBody String request)
+	{
+		var req = new JSONObject(request);
+		var user = userService.getUserByEmail(req.getString("email").toUpperCase());
+		if (user ==null) {
+			return JSONUtils.failResponse("此用户不存在");
+		}
+		var result = userService.getVerification(user.db.email);
+		if (result == null) {
+			return JSONUtils.failResponse("未找到");
+		}
+		return JSONUtils.successResponse(result);
 	}
 }

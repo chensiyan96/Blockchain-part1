@@ -41,6 +41,21 @@ public class FinancingService
 		financingMapper.updateFinancingStatus(fin.db.id, fin.db.status);
 	}
 
+	public Financing[] getFinancingBySid(long sid)
+	{
+		return constructFinancingArray(financingMapper.getFinancingBySid(sid));
+	}
+
+	public Financing[] getFinancingByCid(long cid)
+	{
+		return constructFinancingArray(financingMapper.getFinancingByCid(cid));
+	}
+
+	public Financing[] getFinancingByMid(long mid)
+	{
+		return constructFinancingArray(financingMapper.getFinancingByMid(mid));
+	}
+
 	public Financing[] getFinancingBySidAndStatus(long sid, byte status)
 	{
 		return constructFinancingArray(financingMapper.getFinancingBySidAndStatus(sid, status));
@@ -54,6 +69,21 @@ public class FinancingService
 	public Financing[] getFinancingByMidAndStatus(long mid, byte status)
 	{
 		return constructFinancingArray(financingMapper.getFinancingByMidAndStatus(mid, status));
+	}
+
+	public int getFinancingCountBySidAndStatus(long sid, byte status)
+	{
+		return financingMapper.getFinancingCountBySidAndStatus(sid, status);
+	}
+
+	public int getFinancingCountByCidAndStatus(long cid, byte status)
+	{
+		return financingMapper.getFinancingCountByCidAndStatus(cid, status);
+	}
+
+	public int getFinancingCountByMidAndStatus(long mid, byte status)
+	{
+		return financingMapper.getFinancingCountByMidAndStatus(mid, status);
 	}
 
 	private Financing[] constructFinancingArray(Financing.DataBase[] dbs)

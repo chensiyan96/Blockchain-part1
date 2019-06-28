@@ -1,6 +1,9 @@
 package com.blockchain.service;
 
 import com.blockchain.dao.UserMapper;
+import com.blockchain.model.CoreBusinessProfile;
+import com.blockchain.model.MoneyGiverProfile;
+import com.blockchain.model.SupplierProfile;
 import com.blockchain.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,10 +15,19 @@ public class UserService
 {
 	@Autowired
 	private UserMapper userMapper;
+	@Autowired
+	private CreditService creditService;
+	@Autowired
+	private OrderService orderService;
+	@Autowired
+	private FinancingService financingService;
 
-	public boolean insertUser(User user)
+	public long insertUser(User user)
 	{
-		return userMapper.insertUser(user.db);
+		if (userMapper.insertUser(user.db)) {
+			return user.db.id = userMapper.getlastInsertId();
+		}
+		return 0;
 	}
 
 	public User getUserByID(long id)
@@ -50,11 +62,76 @@ public class UserService
 		return constructUserArray(userMapper.getAllMoneyGivers());
 	}
 
-	private static User[] constructUserArray(User.DataBase[] dbs)
+	public void addProfile(User user)
+	{
+		switch (user.db.role)
+		{
+			case Supplier: {
+				var profile = new SupplierProfile();
+				var credit = creditService.getCreditById(user.db.id);
+				profile.rank = credit.db.rank;
+				profile.applied = credit.db.applied;
+				profile.approved = credit.db.approved;
+				profile.orderCount = orderService.getOrderCountBySidAndStatus(user.db.id, (byte)0);
+				profile.finCounts = new int[4];
+				for (byte i = 0; i < 4; i++) {
+					profile.finCounts[i] = financingService.getFinancingCountBySidAndStatus(user.db.id, i);
+				}
+				user.profile = profile;
+				break;
+			}
+			case CoreBusiness: {
+				var profile = new CoreBusinessProfile();
+				user.profile = profile;
+				profile.orderCount = orderService.getOrderCountByCidAndStatus(user.db.id, (byte)0);
+				profile.finCounts = new int[4];
+				for (byte i = 0; i < 4; i++) {
+					profile.finCounts[i] = financingService.getFinancingCountByCidAndStatus(user.db.id, i);
+				}
+				break;
+			}
+			case MoneyGiver: {
+				var profile = new MoneyGiverProfile();
+				user.profile = profile;
+				profile.finCounts = new int[4];
+				for (byte i = 0; i < 4; i++) {
+					profile.finCounts[i] = financingService.getFinancingCountByMidAndStatus(user.db.id, i);
+				}
+				break;
+			}
+			case Admin:
+				user.profile = null;
+				break;
+		}
+	}
+
+	public void setVerification(String email, String content)
+	{
+//		BlockChainServiceImpl blockChainService = new BlockChainServiceImpl();
+//		try {
+//			blockChainService.invokeUserInformation(email, content);
+//		} catch (WriteFailureException e) {
+//			e.printStackTrace();
+//		}
+	}
+
+	public String getVerification(String email)
+	{
+//		BlockChainServiceImpl blockChainService = new BlockChainServiceImpl();
+//		try {
+//			return blockChainService.queryUserInformation(email);
+//		} catch (ReadFailureException e) {
+//			return null;
+//		}
+		return null;
+	}
+
+	private User[] constructUserArray(User.DataBase[] dbs)
 	{
 		var users = new User[dbs.length];
 		for (int i = 0; i < dbs.length; i++) {
 			users[i] = new User(dbs[i]);
+			addProfile(users[i]);
 		}
 		return users;
 	}

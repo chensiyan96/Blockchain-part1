@@ -10,14 +10,13 @@ import java.math.BigDecimal;
 @Mapper
 public interface CreditMapper extends MapperBase
 {
-	@Options(useGeneratedKeys = true)
-	@Insert("insert into Credit (Rank,Applied,Approved) "
-			+ "values(#{rank},#{applied},#{approved})")
+	@Insert("insert into Credit (Sid,Rank,Applied,Approved) "
+			+ "values(#{sid},#{rank},#{applied},#{approved})")
 	boolean insertCredit(Credit.DataBase credit);
 
-	@Select("select * from Credits where Id = #{id}")
-	Credit.DataBase getCreditById(@Param("id")long id);
+	@Select("select * from Credit where Sid = #{sid}")
+	Credit.DataBase getCreditById(@Param("sid")long sid);
 
-	@Update("update Credits set Rank = #{rank}, Applied = #{applied}, Approved = #{approved} where Id = #{id}")
-	void updateCreditInfo(@Param("id")long id, @Param("rank")String rank, @Param("applied") BigDecimal applied, @Param("approved")BigDecimal approved);
+	@Update("update Credit set Rank = #{rank}, Applied = #{applied}, Approved = #{approved} where Sid = #{sid}")
+	void updateCreditInfo(@Param("sid")long sid, @Param("rank")String rank, @Param("applied") BigDecimal applied, @Param("approved")BigDecimal approved);
 }

@@ -2,10 +2,7 @@ package com.blockchain.controller;
 
 import com.blockchain.model.Financing;
 import com.blockchain.model.User;
-import com.blockchain.service.AccountService;
-import com.blockchain.service.FinancingService;
-import com.blockchain.service.ProductService;
-import com.blockchain.service.UserService;
+import com.blockchain.service.*;
 import com.blockchain.utils.Authorization;
 import com.blockchain.utils.CurrentUser;
 import com.blockchain.utils.JSONUtils;
@@ -29,6 +26,8 @@ public class FinancingController
     private AccountService accountService;
     @Autowired
     private ProductService productService;
+    @Autowired
+    private CreditService creditService;
 
     // 创建一个融资申请
 	@Authorization
@@ -65,6 +64,10 @@ public class FinancingController
         var money = req.getBigDecimal("adopt_money");
         if (money.compareTo(BigDecimal.ZERO) <= 0) {
             return JSONUtils.failResponse("金额必须大于0");
+        }
+        var credit = creditService.getCreditById(uc.db.id);
+        if (credit.db.approved == null || money.compareTo(credit.db.approved) > 0) {
+            return JSONUtils.failResponse("融资金额不能大于授信额度");
         }
 
         // 4.创建Financing对象
@@ -185,12 +188,10 @@ public class FinancingController
             return JSONUtils.failResponse("账户余额不足");
         }
 
-        // 4.更新融资申请状态
+        // 4.更新融资申请状态并返回成功提示
         fin.db.status = 3;
         financingService.updateFinancingStatus(fin);
-
-        // 5.返回成功提示
-        return JSONUtils.successResponse();
+        return JSONUtils.successResponse(fin.db.money);
 	}
 
     // 还款（第四步）
@@ -214,14 +215,15 @@ public class FinancingController
         }
 
         // 3.还款
-        if (!accountService.transferMoney(fin.db.mid, fin.db.sid, fin.db.money)) {
-            return JSONUtils.failResponse("账户余额不足");
+        var money = fin.db.money.multiply(fin.db.rate.multiply(new BigDecimal(fin.db.days)).add(BigDecimal.ONE));
+        if (!accountService.transferMoney(fin.db.mid, fin.db.sid, money)) {
+            return JSONUtils.failResponse("账户余额不足，应还金额为" + money);
         }
 
         // 4.更新融资申请状态并返回成功提示
         fin.db.status = 4;
         financingService.updateFinancingStatus(fin);
-        return JSONUtils.successResponse();
+        return JSONUtils.successResponse(money);
     }
 
     // 获取当前登录的用户处于某状态下的所有融资申请
@@ -248,4 +250,36 @@ public class FinancingController
         }
         return JSONUtils.successResponse(JSONUtils.arrayToJSONs(fins));
 	}
+
+    // 获取某用户的所有融资申请
+    @Authorization
+    @RequestMapping(value = "getFinancingByEmail", method = { RequestMethod.POST })
+    public String getFinancingByEmail(@CurrentUser User user, @RequestBody String request)
+    {
+        if (user.db.role != User.Roles.Admin) {
+            return JSONUtils.failResponse("只有管理员才能获取");
+        }
+        var req = new JSONObject(request);
+        var user2 = userService.getUserByEmail(req.getString("email").toUpperCase());
+        if (user2 == null) {
+            return JSONUtils.failResponse("此用户不存在");
+        }
+
+        Financing[] fins;
+        switch (user2.db.role)
+        {
+            case Supplier:
+                fins = financingService.getFinancingBySid(user2.db.id);
+                break;
+            case CoreBusiness:
+                fins = financingService.getFinancingByCid(user2.db.id);
+                break;
+            case MoneyGiver:
+                fins = financingService.getFinancingByMid(user2.db.id);
+                break;
+            default:
+                return JSONUtils.failResponse("管理员没有融资申请");
+        }
+        return JSONUtils.successResponse(JSONUtils.arrayToJSONs(fins));
+    }
 }

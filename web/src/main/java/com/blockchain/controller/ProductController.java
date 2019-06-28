@@ -33,6 +33,9 @@ public class ProductController
 		var product = new Product();
 		product.db.name = req.getString("name");
 		product.db.days = req.getInt("days");
+		if (product.db.days <= 0) {
+			return JSONUtils.failResponse("期限必须大于0天");
+		}
 		product.db.rate = req.getBigDecimal("rate");
 		product.db.additional = req.has("additional") ? req.getString("additional") : null;
 

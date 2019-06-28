@@ -72,7 +72,7 @@ CREATE TABLE `Credit` (
     `Rank` varchar(255) NULL,
     `Applied` decimal(20,2) NULL,
     `Approved` decimal(20,2) NULL
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 转账记录
 CREATE TABLE `Transfer`(

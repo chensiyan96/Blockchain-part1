@@ -18,7 +18,7 @@ public class CreditService
 		return creditMapper.insertCredit(credit.db);
 	}
 
-	public Credit getCreditById(int id)
+	public Credit getCreditById(long id)
 	{
 		var db = creditMapper.getCreditById(id);
 		return db == null ? null : new Credit(db);
@@ -26,6 +26,6 @@ public class CreditService
 
 	public void updateCreditInfo(Credit credit)
 	{
-		creditMapper.updateCreditInfo(credit.db.id, credit.db.rank, credit.db.applied, credit.db.approved);
+		creditMapper.updateCreditInfo(credit.db.sid, credit.db.rank, credit.db.applied, credit.db.approved);
 	}
 }
