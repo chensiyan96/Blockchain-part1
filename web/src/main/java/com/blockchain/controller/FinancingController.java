@@ -57,7 +57,7 @@ public class FinancingController
         }
 
         // 3.检查产品和金额
-        var product = productService.getProductById(req.getLong("pid"));
+        var product = productService.getProductById(req.getLong("product_id"));
         if (product == null) {
             return JSONUtils.failResponse("此产品不存在");
         }
@@ -65,7 +65,7 @@ public class FinancingController
         if (money.compareTo(BigDecimal.ZERO) <= 0) {
             return JSONUtils.failResponse("金额必须大于0");
         }
-        var credit = creditService.getCreditById(uc.db.id);
+        var credit = creditService.getCreditById(us.db.id);
         if (credit.db.approved == null || money.compareTo(credit.db.approved) > 0) {
             return JSONUtils.failResponse("融资金额不能大于授信额度");
         }

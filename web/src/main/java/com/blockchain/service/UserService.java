@@ -8,6 +8,11 @@ import com.blockchain.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import provider.BlockChainServiceImpl;
+import utils.exceptions.ReadFailureException;
+import utils.exceptions.WriteFailureException;
+
+import java.io.File;
 
 @Service
 @Transactional
@@ -117,21 +122,24 @@ public class UserService
 
 	public String getVerification(String email)
 	{
-//		BlockChainServiceImpl blockChainService = new BlockChainServiceImpl();
-//		try {
-//			blockChainService.invokeUserInformation(email, "aaa");
-//			Thread.sleep(100);
-//		} catch (WriteFailureException e) {
-//			return "WriteFailureException";
-//		} catch (InterruptedException e) {
-//			return "InterruptedException";
-//		}
-//		try {
-//			return blockChainService.queryUserInformation(email);
-//		} catch (ReadFailureException e) {
-//			return "ReadFailureException";
-//		}
-		return null;
+		BlockChainServiceImpl blockChainService = new BlockChainServiceImpl();
+		try {
+			blockChainService.invokeUserInformation("aaa", "aaa");
+			Thread.sleep(100);
+		} catch (WriteFailureException e) {
+
+			String dir = System.getProperty("user.dir") + "/basic-network";
+			File directory = new File(dir);
+			return directory.getPath() + "/config/";
+			//return "WriteFailureException";
+		} catch (InterruptedException e) {
+			return "InterruptedException";
+		}
+		try {
+			return blockChainService.queryUserInformation("aaa");
+		} catch (ReadFailureException e) {
+			return "ReadFailureException";
+		}
 	}
 
 	private User[] constructUserArray(User.DataBase[] dbs)

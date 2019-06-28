@@ -20,7 +20,7 @@ public class AccountService
 	public BigDecimal queryMoney(long uid)
 	{
 		// todo：从区块链里查询余额并返回
-		return BigDecimal.ZERO;
+		return new BigDecimal("88888888");
 	}
 
 	// 充值

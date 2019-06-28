@@ -53,7 +53,13 @@ public class User implements ToJSON
 		res.put("email", db.email);
 		res.put("name", db.name);
 		res.put("role", db.role);
-        res.put("additional", db.additional);
+        var additional = new JSONObject(); // todo
+        additional.put("type", "普通营业执照");
+        additional.put("num", 1234567890);
+        additional.put("person", "某人");
+        additional.put("trust", "某机构");
+        additional.put("trust_money", 999999999);
+        res.put("additional", additional);
         res.put("frozen", db.frozen);
         res.put("autoPass", db.autoPass);
         if (profile != null) {

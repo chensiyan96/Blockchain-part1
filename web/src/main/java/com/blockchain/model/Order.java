@@ -57,14 +57,14 @@ public class Order implements ToJSON
     public void setCoreBusiness(User src)
     {
         assert src.db.role == User.Roles.CoreBusiness;
-        supplier = src;
+        coreBusiness = src;
         db.cid = src.db.id;
     }
 
     public void setSupplier(User src)
     {
         assert src.db.role == User.Roles.Supplier;
-        coreBusiness = src;
+        supplier = src;
         db.sid = src.db.id;
     }
 }
