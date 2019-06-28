@@ -12,6 +12,7 @@ public class AccountService
 	// 创建账户
 	public void createAccount(long uid)
 	{
+
 		// todo：在区块链中将该账户余额初始化为0
 	}
 

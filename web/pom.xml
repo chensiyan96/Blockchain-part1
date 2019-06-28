@@ -48,6 +48,7 @@
           <contextPath>/</contextPath>
         </configuration>
       </plugin>
+
     </plugins>
     <!--配置资源文件映射  -->
     <resources>
@@ -88,6 +89,7 @@
 
   <dependencyManagement>
     <dependencies>
+
       <!-- Spring -->
       <dependency>
         <groupId>org.springframework</groupId>

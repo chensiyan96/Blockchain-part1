@@ -74,6 +74,7 @@ CREATE TABLE `Credit` (
     `Approved` decimal(20,2) NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
 -- 转账记录
 CREATE TABLE `Transfer`(
     `Id` bigint NOT NULL auto_increment PRIMARY KEY,

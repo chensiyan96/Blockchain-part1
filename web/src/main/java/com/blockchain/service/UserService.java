@@ -119,9 +119,17 @@ public class UserService
 	{
 //		BlockChainServiceImpl blockChainService = new BlockChainServiceImpl();
 //		try {
+//			blockChainService.invokeUserInformation(email, "aaa");
+//			Thread.sleep(100);
+//		} catch (WriteFailureException e) {
+//			return "WriteFailureException";
+//		} catch (InterruptedException e) {
+//			return "InterruptedException";
+//		}
+//		try {
 //			return blockChainService.queryUserInformation(email);
 //		} catch (ReadFailureException e) {
-//			return null;
+//			return "ReadFailureException";
 //		}
 		return null;
 	}

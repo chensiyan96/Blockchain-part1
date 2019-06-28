@@ -150,7 +150,7 @@ public class UserController
 	{
 		var req = new JSONObject(request);
 		user.db.additional = req.has("additional") ? req.getString("additional") : null;
-		//userService.updateUser(user);
+		userService.updateUser(user);
 		return JSONUtils.successResponse();
 	}
 
@@ -168,7 +168,7 @@ public class UserController
 
 		// 2.在数据库中更新并返回成功提示
 		user.hashAndSetPassword(req.getString("newPassword"));
-		//userService.updateUser(user);
+		userService.updateUser(user);
 		return JSONUtils.successResponse();
 	}
 
@@ -190,8 +190,8 @@ public class UserController
 		}
 
 		// 3.更新用户状态并返回成功提示
-		user.db.frozen = req.getInt("frozen") != 0 ? (byte)1 : (byte)0;
-		userService.updateUser(user);
+		other_user.db.frozen = req.getInt("frozen") != 0 ? (byte)1 : (byte)0;
+		userService.updateUser(other_user);
 		return JSONUtils.successResponse();
 	}
 
