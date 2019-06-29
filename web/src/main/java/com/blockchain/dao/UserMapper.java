@@ -33,6 +33,9 @@ public interface UserMapper extends MapperBase
 	void updateUserInfo(@Param("id") long id, @Param("name") String name, @Param("psw_hash") String psw_hash,
 						@Param("additional") String additional, @Param("frozen") byte frozen, @Param("autoPass") byte autoPass);
 
+	@Select("select LastTransfer from `User` where Id = #{id} ")
+	long selectLastTransfer(@Param("id") long id);
+
 	@Update("update `User` set LastTransfer = #{lastTransfer} where Id = #{id} ")
 	void updateLastTransfer(@Param("id") long id, @Param("lastTransfer") long lastTransfer);
 }

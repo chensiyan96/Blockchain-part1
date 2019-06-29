@@ -5,10 +5,11 @@ import com.blockchain.model.CoreBusinessProfile;
 import com.blockchain.model.MoneyGiverProfile;
 import com.blockchain.model.SupplierProfile;
 import com.blockchain.model.User;
+import com.blockchain.utils.GetFabricManager;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import provider.BlockChainServiceImpl;
 import utils.exceptions.ReadFailureException;
 import utils.exceptions.WriteFailureException;
 
@@ -110,9 +111,8 @@ public class UserService
 
 	public boolean setVerification(String email, String content)
 	{
-		BlockChainServiceImpl blockChainService = new BlockChainServiceImpl();
 		try {
-			blockChainService.invokeUserInformation(email, content);
+			GetFabricManager.getBlockChainService().invokeUserInformation(email, content);
 			return true;
 		} catch (WriteFailureException e) {
 			return false;
@@ -121,9 +121,9 @@ public class UserService
 
 	public String getVerification(String email)
 	{
-		BlockChainServiceImpl blockChainService = new BlockChainServiceImpl();
 		try {
-			return blockChainService.queryUserInformation(email);
+			var json = GetFabricManager.getBlockChainService().queryUserInformation(email);
+			return new JSONObject(json).getString("encryped_message");
 		} catch (ReadFailureException e) {
 			return null;
 		}

@@ -2,9 +2,11 @@ package com.blockchain.service;
 
 import com.blockchain.dao.FinancingMapper;
 import com.blockchain.model.Financing;
+import com.blockchain.utils.GetFabricManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import utils.exceptions.WriteFailureException;
 
 import java.sql.Timestamp;
 
@@ -40,6 +42,13 @@ public class FinancingService
 
 	public void updateFinancingStatus(Financing fin)
 	{
+		if (fin.db.status == 3) {
+			try {
+				GetFabricManager.getBlockChainService().invokeFinancingApply(fin.db.id, fin.toJSON().toString());
+			} catch (WriteFailureException e) {
+				e.printStackTrace();
+			}
+		}
 		financingMapper.updateFinancingStatus(fin.db.id, fin.db.status);
 	}
 

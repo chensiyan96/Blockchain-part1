@@ -88,12 +88,13 @@ public class OrderController
             return JSONUtils.failResponse("您不存在该申请");
         }
         if (order.db.status != 0) {
-            return JSONUtils.failResponse("本申请不该进行此操作");
+            return JSONUtils.failResponse("已经付款了");
         }
 
         // 3.付款
-        if (!accountService.transferMoney(order.db.sid, order.db.cid, order.db.money)) {
-            return JSONUtils.failResponse("账户余额不足");
+        var s = accountService.transferMoney(userService.getUserByID(order.db.sid), userService.getUserByID(order.db.cid), order.db.money);
+        if (s != null) {
+            return JSONUtils.failResponse(s);
         }
 
         // 4.更新订单状态

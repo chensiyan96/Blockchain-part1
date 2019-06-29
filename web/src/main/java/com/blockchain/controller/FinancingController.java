@@ -184,8 +184,9 @@ public class FinancingController
         }
 
         // 3.放款
-        if (!accountService.transferMoney(fin.db.sid, fin.db.mid, fin.db.money)) {
-            return JSONUtils.failResponse("账户余额不足");
+        var s = accountService.transferMoney(userService.getUserByID(fin.db.sid), userService.getUserByID(fin.db.mid), fin.db.money);
+        if (s != null) {
+            return JSONUtils.failResponse(s);
         }
 
         // 4.更新融资申请状态并返回成功提示
@@ -217,8 +218,9 @@ public class FinancingController
 
         // 3.还款
         var money = fin.db.money.multiply(fin.db.rate.multiply(new BigDecimal(fin.db.days)).add(BigDecimal.ONE));
-        if (!accountService.transferMoney(fin.db.mid, fin.db.sid, money)) {
-            return JSONUtils.failResponse("账户余额不足，应还金额为" + money);
+        var s = accountService.transferMoney(userService.getUserByID(fin.db.mid), userService.getUserByID(fin.db.sid), money);
+        if (s != null) {
+            return JSONUtils.failResponse(s);
         }
 
         // 4.更新融资申请状态并返回成功提示

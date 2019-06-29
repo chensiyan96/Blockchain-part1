@@ -87,9 +87,5 @@ CREATE TABLE `CreditRecord` (
 CREATE TABLE `Transfer`(
     `Id` bigint NOT NULL auto_increment PRIMARY KEY,
     `Dst` bigint NOT NULL,
-    `Src` bigint NOT NULL,
-    `Money` decimal(20,2) NOT NULL,
-    `Remain` decimal(20,2) NOT NULL,
-    CONSTRAINT `FK_Transfer_User_Dst` FOREIGN KEY (`Dst`) REFERENCES `User` (`Id`),
-    CONSTRAINT `FK_Transfer_User_Src` FOREIGN KEY (`Src`) REFERENCES `User` (`Id`)
+    `Src` bigint NOT NULL
 )ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;

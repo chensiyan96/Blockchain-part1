@@ -24,7 +24,11 @@ public class AccountController
 	@RequestMapping(value = "getMoney", method = { RequestMethod.GET })
 	public String getMoney(@CurrentUser User user)
 	{
-		return JSONUtils.successResponse(accountService.queryMoney(user.db.id));
+		var money = accountService.queryMoney(user);
+		if (money != null) {
+			return JSONUtils.successResponse(money);
+		}
+		return JSONUtils.failResponse("请稍后再试");
 	}
 
 	// 充值
@@ -37,12 +41,8 @@ public class AccountController
 		if (money.compareTo(BigDecimal.ZERO) <= 0) {
 			return JSONUtils.failResponse("金额必须大于0");
 		}
-	    if (accountService.investMoney(user.db.id, money)) {
-            return JSONUtils.successResponse();
-        }
-        else {
-            return JSONUtils.failResponse("银行卡余额不足");
-        }
+		var s = accountService.investMoney(user, money);
+		return s == null ? JSONUtils.successResponse() : JSONUtils.failResponse(s);
 	}
 
 	// 提现
@@ -55,11 +55,7 @@ public class AccountController
 		if (money.compareTo(BigDecimal.ZERO) <= 0) {
 			return JSONUtils.failResponse("金额必须大于0");
 		}
-        if (accountService.withdrawMoney(user.db.id, money)) {
-            return JSONUtils.successResponse();
-        }
-        else {
-            return JSONUtils.failResponse("账户余额不足");
-        }
+		var s = accountService.withdrawMoney(user, money);
+		return s == null ? JSONUtils.successResponse() : JSONUtils.failResponse(s);
 	}
 }
