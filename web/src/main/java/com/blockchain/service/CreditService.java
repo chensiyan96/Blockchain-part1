@@ -18,12 +18,6 @@ public class CreditService
 
 	public boolean insertCredit(Credit credit)
 	{
-		var record = new CreditRecord();
-		record.sid = credit.db.sid;
-		record.applied = credit.db.approved;
-		record.approved = credit.db.approved;
-		record.createTime = new Timestamp(System.currentTimeMillis());
-		creditMapper.insertCreditRecord(record);
 		return creditMapper.insertCredit(credit.db);
 	}
 
@@ -35,6 +29,15 @@ public class CreditService
 
 	public void updateCreditInfo(Credit credit)
 	{
+		if (credit.db.approved != null)
+		{
+			var record = new CreditRecord();
+			record.sid = credit.db.sid;
+			record.applied = credit.db.approved;
+			record.approved = credit.db.approved;
+			record.createTime = new Timestamp(System.currentTimeMillis());
+			creditMapper.insertCreditRecord(record);
+		}
 		creditMapper.updateCreditInfo(credit.db.sid, credit.db.rank, credit.db.applied, credit.db.approved);
 	}
 

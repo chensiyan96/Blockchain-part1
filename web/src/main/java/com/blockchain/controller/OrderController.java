@@ -58,6 +58,7 @@ public class OrderController
         order.setSupplier(us);
         order.setCoreBusiness(uc);
         order.db.money = money;
+        order.db.number = req.getLong("number");
         order.db.createTime = new Timestamp(System.currentTimeMillis());
         order.db.days = req.getInt("days");
         order.db.status = 0;

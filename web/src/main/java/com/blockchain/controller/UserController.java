@@ -13,6 +13,8 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @CrossOrigin
 @RestController
 @RequestMapping(value = "api/user")
@@ -69,6 +71,7 @@ public class UserController
 
 		// 5.在区块链里创建账户并返回成功提示
 		accountService.createAccount(user.db.id);
+		accountService.investMoney(user,new BigDecimal("8888")); // 送点初始金额方便展示
 		return JSONUtils.successResponse();
 	}
 

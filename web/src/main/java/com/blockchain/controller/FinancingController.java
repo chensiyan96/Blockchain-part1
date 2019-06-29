@@ -217,7 +217,8 @@ public class FinancingController
         }
 
         // 3.还款
-        var money = fin.db.money.multiply(fin.db.rate.multiply(new BigDecimal(fin.db.days)).add(BigDecimal.ONE));
+        long days = (System.currentTimeMillis() - fin.db.createTime.getTime()) / (24 * 60 * 60 * 1000);
+        var money = fin.db.money.multiply(fin.db.rate.multiply(new BigDecimal(days)).add(BigDecimal.ONE));
         var s = accountService.transferMoney(userService.getUserByID(fin.db.mid), userService.getUserByID(fin.db.sid), money);
         if (s != null) {
             return JSONUtils.failResponse(s);

@@ -75,6 +75,6 @@ public class CreditController
     @RequestMapping(value = "getRecordCredit", method = { RequestMethod.GET })
     public String getRecordCredit(@CurrentUser User user)
     {
-        return JSONUtils.successResponse(creditService.getRecordCredit(user.db.id));
+        return JSONUtils.successResponse(JSONUtils.arrayToJSONs(creditService.getRecordCredit(user.db.id)));
     }
 }
