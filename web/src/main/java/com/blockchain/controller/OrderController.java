@@ -87,7 +87,7 @@ public class OrderController
         if (order == null || order.db.cid != user.db.id) {
             return JSONUtils.failResponse("您不存在该申请");
         }
-        if (order.db.status != 2) {
+        if (order.db.status != 0) {
             return JSONUtils.failResponse("本申请不该进行此操作");
         }
 

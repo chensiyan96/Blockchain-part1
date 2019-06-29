@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS `CreditRecord`;
 DROP TABLE IF EXISTS `Credit`;
 DROP TABLE IF EXISTS `Order`;
 DROP TABLE IF EXISTS `Financing`;
@@ -74,12 +75,21 @@ CREATE TABLE `Credit` (
     `Approved` decimal(20,2) NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- 授信记录
+CREATE TABLE `CreditRecord` (
+    `Sid` bigint NOT NULL,
+    `Applied` decimal(20,2) NULL NULL,
+    `Approved` decimal(20,2) NULL NULL,
+    `CreateTime` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 转账记录
 CREATE TABLE `Transfer`(
     `Id` bigint NOT NULL auto_increment PRIMARY KEY,
     `Dst` bigint NOT NULL,
     `Src` bigint NOT NULL,
+    `Money` decimal(20,2) NOT NULL,
+    `Remain` decimal(20,2) NOT NULL,
     CONSTRAINT `FK_Transfer_User_Dst` FOREIGN KEY (`Dst`) REFERENCES `User` (`Id`),
     CONSTRAINT `FK_Transfer_User_Src` FOREIGN KEY (`Src`) REFERENCES `User` (`Id`)
 )ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;

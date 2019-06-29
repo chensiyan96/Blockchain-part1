@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+
 @Service
 @Transactional
 public class FinancingService
@@ -84,6 +86,16 @@ public class FinancingService
 	public int getFinancingCountByMidAndStatus(long mid, byte status)
 	{
 		return financingMapper.getFinancingCountByMidAndStatus(mid, status);
+	}
+
+	public void updateFinancingPayTime(long id, Timestamp payTime)
+	{
+		financingMapper.updateFinancingPayTime(id, payTime);
+	}
+
+	public void updateFinancingRepayTime(long id, Timestamp repayTime)
+	{
+		financingMapper.updateFinancingRepayTime(id, repayTime);
 	}
 
 	private Financing[] constructFinancingArray(Financing.DataBase[] dbs)

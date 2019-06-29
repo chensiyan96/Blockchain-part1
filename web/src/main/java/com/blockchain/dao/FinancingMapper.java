@@ -11,8 +11,8 @@ import java.sql.Timestamp;
 public interface FinancingMapper extends MapperBase
 {
 	@Options(useGeneratedKeys = true)
-	@Insert("insert into `Financing`(Id,Sid,Cid,Mid,Money,Days,Rate,CreateTime,Status) "
-			+ "values(#{id},#{sid},#{cid},#{mid},#{money},#{days},#{rate},#{createTime},#{status})")
+	@Insert("insert into `Financing`(Sid,Cid,Mid,Money,Days,Rate,CreateTime,Status) "
+			+ "values(#{sid},#{cid},#{mid},#{money},#{days},#{rate},#{createTime},#{status})")
 	boolean insertFinancing(Financing.DataBase fin);
 
 	@Select("select * from `Financing` where Id = #{id}")

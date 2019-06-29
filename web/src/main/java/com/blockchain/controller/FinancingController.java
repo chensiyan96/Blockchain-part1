@@ -190,6 +190,7 @@ public class FinancingController
 
         // 4.更新融资申请状态并返回成功提示
         fin.db.status = 3;
+        financingService.updateFinancingPayTime(fin.db.id, new Timestamp(System.currentTimeMillis()));
         financingService.updateFinancingStatus(fin);
         return JSONUtils.successResponse(fin.db.money);
 	}
@@ -222,8 +223,30 @@ public class FinancingController
 
         // 4.更新融资申请状态并返回成功提示
         fin.db.status = 4;
+        financingService.updateFinancingRepayTime(fin.db.id, new Timestamp(System.currentTimeMillis()));
         financingService.updateFinancingStatus(fin);
         return JSONUtils.successResponse(money);
+    }
+
+    // 驳回申请
+    @Authorization
+    @RequestMapping(value = "reject", method = { RequestMethod.POST })
+    public String reject(@CurrentUser User user, @RequestBody String request)
+    {
+        // 2.检查融资申请状态
+        var req = new JSONObject(request);
+        var fin = financingService.getFinancingByID(req.getLong("id"));
+        if (fin == null || (fin.db.sid != user.db.id && fin.db.cid != user.db.id && fin.db.mid != user.db.id)) {
+            return JSONUtils.failResponse("您不存在该申请");
+        }
+        if (fin.db.status == 3) {
+            return JSONUtils.failResponse("本申请已经付款不能进行此操作");
+        }
+
+        // 4.更新融资申请状态并返回成功提示
+        fin.db.status = -1;
+        financingService.updateFinancingStatus(fin);
+        return JSONUtils.successResponse();
     }
 
     // 获取当前登录的用户处于某状态下的所有融资申请
@@ -237,8 +260,8 @@ public class FinancingController
         switch (user.db.role)
         {
             case Supplier:
-            fins = financingService.getFinancingBySidAndStatus(user.db.id, status);
-            break;
+                fins = financingService.getFinancingBySidAndStatus(user.db.id, status);
+                break;
             case CoreBusiness:
                 fins = financingService.getFinancingByCidAndStatus(user.db.id, status);
                 break;

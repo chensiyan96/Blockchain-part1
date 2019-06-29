@@ -12,8 +12,6 @@ import provider.BlockChainServiceImpl;
 import utils.exceptions.ReadFailureException;
 import utils.exceptions.WriteFailureException;
 
-import java.io.File;
-
 @Service
 @Transactional
 public class UserService
@@ -110,35 +108,24 @@ public class UserService
 		}
 	}
 
-	public void setVerification(String email, String content)
+	public boolean setVerification(String email, String content)
 	{
-//		BlockChainServiceImpl blockChainService = new BlockChainServiceImpl();
-//		try {
-//			blockChainService.invokeUserInformation(email, content);
-//		} catch (WriteFailureException e) {
-//			e.printStackTrace();
-//		}
+		BlockChainServiceImpl blockChainService = new BlockChainServiceImpl();
+		try {
+			blockChainService.invokeUserInformation(email, content);
+			return true;
+		} catch (WriteFailureException e) {
+			return false;
+		}
 	}
 
 	public String getVerification(String email)
 	{
 		BlockChainServiceImpl blockChainService = new BlockChainServiceImpl();
 		try {
-			blockChainService.invokeUserInformation("aaa", "aaa");
-			Thread.sleep(100);
-		} catch (WriteFailureException e) {
-
-			String dir = System.getProperty("user.dir") + "/basic-network";
-			File directory = new File(dir);
-			return directory.getPath() + "/config/";
-			//return "WriteFailureException";
-		} catch (InterruptedException e) {
-			return "InterruptedException";
-		}
-		try {
-			return blockChainService.queryUserInformation("aaa");
+			return blockChainService.queryUserInformation(email);
 		} catch (ReadFailureException e) {
-			return "ReadFailureException";
+			return null;
 		}
 	}
 

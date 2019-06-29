@@ -1,0 +1,111 @@
+package provider.fabricSdk;
+
+import provider.fabricSdk.bean.Chaincode;
+import provider.fabricSdk.bean.Orderers;
+import provider.fabricSdk.bean.Peers;
+
+import java.io.File;
+
+public class FabricConfig {
+
+    //private static Logger log = Logger.getLogger(FabricConfig.class);
+
+    /**
+     * 节点服务器对象
+     */
+    private Peers peers;
+    /**
+     * 排序服务器对象
+     */
+    private Orderers orderers;
+    /**
+     * 智能合约对象
+     */
+    private Chaincode chaincode;
+    /**
+     * channel-artifacts所在路径：默认channel-artifacts所在路径/xxx/WEB-INF/classes/fabric/channel-artifacts/
+     */
+    private String channelArtifactsPath;
+    /**
+     * crypto-config所在路径：默认crypto-config所在路径/xxx/WEB-INF/classes/fabric/crypto-config/
+     */
+    private String cryptoConfigPath;
+    private boolean registerEvent = false;
+
+    public FabricConfig() {
+        // 默认channel-artifacts所在路径 /xxx/WEB-INF/classes/fabric/channel-artifacts/
+        channelArtifactsPath = getChannelPath() + "/channel-artifacts/";
+        // 默认crypto-config所在路径 /xxx/WEB-INF/classes/fabric/crypto-config/
+        cryptoConfigPath = getChannelPath() + "/crypto-config/";
+    }
+
+    /**
+     * 默认fabric配置路径
+     *
+     * @return ./xxx/WEB-INF/classes/fabric/channel-artifacts/
+     */
+    private String getChannelPath() {
+        //String dir = ChaincodeManager.class.getClassLoader().getResource("basic-network").getFile();
+        String dir = System.getProperty("user.dir") + "/basic-network";
+        System.out.println(dir);
+//        String dir = "/Users/liwei/fabric-samples/basic-network/config";
+
+//        String dir = "/../basic-network/config";
+        //log.debug("dir = " + dir);
+        File directory = new File(dir);
+        //log.debug("directory = " + directory.getPath());
+
+        //return directory.getPath();
+        return dir;
+        // return "src/main/resources/fabric/channel-artifacts/";
+    }
+
+    public Peers getPeers() {
+        return peers;
+    }
+
+    public void setPeers(Peers peers) {
+        this.peers = peers;
+    }
+
+    public Orderers getOrderers() {
+        return orderers;
+    }
+
+    public void setOrderers(Orderers orderers) {
+        this.orderers = orderers;
+    }
+
+    public Chaincode getChaincode() {
+        return chaincode;
+    }
+
+    public void setChaincode(Chaincode chaincode) {
+        this.chaincode = chaincode;
+    }
+
+    public String getChannelArtifactsPath() {
+        return channelArtifactsPath;
+    }
+
+    public void setChannelArtifactsPath(String channelArtifactsPath) {
+        this.channelArtifactsPath = channelArtifactsPath;
+    }
+
+    public String getCryptoConfigPath() {
+        return cryptoConfigPath;
+    }
+
+    public void setCryptoConfigPath(String cryptoConfigPath) {
+        this.cryptoConfigPath = cryptoConfigPath;
+    }
+
+    public boolean isRegisterEvent() {
+        return registerEvent;
+    }
+
+    public void setRegisterEvent(boolean registerEvent) {
+        this.registerEvent = registerEvent;
+    }
+
+}

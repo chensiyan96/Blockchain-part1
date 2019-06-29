@@ -69,4 +69,12 @@ public class CreditController
         creditService.updateCreditInfo(credit);
         return JSONUtils.successResponse();
     }
+
+    // 获取当前用户的授信记录
+    @Authorization
+    @RequestMapping(value = "getRecordCredit", method = { RequestMethod.GET })
+    public String getRecordCredit(@CurrentUser User user)
+    {
+        return JSONUtils.successResponse(creditService.getRecordCredit(user.db.id));
+    }
 }

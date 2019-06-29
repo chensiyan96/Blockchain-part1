@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 @Mapper
 public interface AccessRuleMapper extends MapperBase
 {
+    @Options(useGeneratedKeys = true)
     @Insert("insert into `AccessRule`(Content) values (#{content})")
     boolean insertAccessRule(@Param("content") String content);
 
